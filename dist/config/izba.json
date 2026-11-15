@@ -68,7 +68,7 @@
         }
       ],
       "cardImage": "assets/chainmail-card.png",
-      "sound": "assets/audio/dobcommunications-metal-clang-284809.mp3",
+      "sound": "assets/audio/chainmail-short.wav",
       "treasuryImage": "assets/chainmail-card.png"
     },
     "helmet": {
@@ -93,7 +93,7 @@
         }
       ],
       "cardImage": "assets/helmet-card.png",
-      "sound": "assets/audio/u_xjrmmgxfru-armor-hit-soft-01-266303.mp3",
+      "sound": "assets/audio/helmet-short.wav",
       "treasuryImage": "assets/helmet-card.png"
     },
     "belt": {
@@ -118,7 +118,7 @@
         }
       ],
       "cardImage": "assets/belt-card.png",
-      "sound": "assets/audio/tanweraman-wave-cape-cloth-in-wind-350430.mp3",
+      "sound": "assets/audio/belt-short.wav",
       "treasuryImage": "assets/belt-card.png"
     },
     "ring": {
@@ -143,7 +143,7 @@
         }
       ],
       "cardImage": "assets/ring-card.png",
-      "sound": "assets/audio/mixkit-fairy-magic-sparkle-871.wav",
+      "sound": "assets/audio/ring-short.wav",
       "treasuryImage": "assets/ring-card.png"
     },
     "boots": {
@@ -184,7 +184,7 @@
         }
       ],
       "cardImage": "assets/boots-card.png",
-      "sound": "assets/audio/soundreality-footsteps-walking-boots-parquet-reverb-mix-420849.mp3",
+      "sound": "assets/audio/boots-short.wav",
       "treasuryImage": "assets/boots-card.png"
     },
     "gusli": {
@@ -200,7 +200,7 @@
       ],
       "worn": [],
       "cardImage": "assets/gusli-card.png",
-      "sound": "assets/audio/lunarboommusic-kitezhgrad-564684.mp3",
+      "sound": "assets/audio/gusli-short.wav",
       "treasuryImage": "assets/gusli-card.png"
     },
     "cup": {
@@ -216,7 +216,7 @@
       ],
       "worn": [],
       "cardImage": "assets/cup-card.png",
-      "sound": "assets/audio/freesound_community-metal-cup-drop-105939.mp3",
+      "sound": "assets/audio/cup-short.wav",
       "treasuryImage": "assets/cup-card.png"
     }
   },

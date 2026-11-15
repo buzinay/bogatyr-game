@@ -1,17 +1,19 @@
 const host = document.getElementById('bogatyr-game');
 const root = host.attachShadow({mode:'open'});
 const style = document.createElement('link');
-style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=izba-4', import.meta.url).href;
+style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=izba-mobile-1', import.meta.url).href;
 root.append(style);
 const mount = document.createElement('div');
 mount.className='loading'; mount.textContent='Загружаем игру…'; root.append(mount);
 const KEY='bogatyr-game:izba:v1';
-const BUILD='izba-audio-1';
+const BUILD='izba-mobile-audio-2';
 const NS='http://www.w3.org/2000/svg';
 const equipment=['chainmail','helmet','belt','ring','boots'];
 let config, artifacts, state, storageOK=true, saveNotice='', audio=null, activeCard=null;
 let audioTimer=null;
-let hintId=null, zoom=innerWidth>700?'fit':'detail', scale=1, returnFocus=null, drag=null, suppressClick=false;
+const soundClips=new Map();
+let hintId=null, zoom='fit', scale=1, returnFocus=null, drag=null, suppressClick=false;
+let gesture=null, customScale=null, touchClickTimer=null;
 const images = new Map();
 const $=s=>root.querySelector(s);
 const el=(tag,cls,text)=>{const n=document.createElement(tag); if(cls)n.className=cls; if(text!==undefined)n.textContent=text; return n;};
@@ -39,12 +41,19 @@ function readSave(){
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch{storageOK=false;updateStorageNotice();}}
 function updateStorageNotice(){const n=$('#storage-note'); if(n){n.hidden=storageOK;n.textContent='Прогресс хранится только до закрытия страницы: браузер запретил сохранение.';}}
 function stopAudio(){clearTimeout(audioTimer);audioTimer=null;if(audio){audio.pause();audio.currentTime=0;audio=null;}}
+function prepareSounds(){
+  for(const [id,item]of Object.entries(config.items)){
+    if(!item.sound)continue;
+    const clip=new Audio();clip.preload='auto';clip.src=url(item.sound);
+    clip.addEventListener('playing',()=>{if(audio===clip){clearTimeout(audioTimer);audioTimer=setTimeout(stopAudio,2000);}});
+    clip.addEventListener('timeupdate',()=>{if(audio===clip&&clip.currentTime>=2)stopAudio();});
+    clip.addEventListener('ended',()=>{if(audio===clip)stopAudio();});
+    soundClips.set(id,clip);clip.load();
+  }
+}
 function playSound(id){
   stopAudio();const file=config.items[id]?.sound;if(!file||!state.soundEnabled)return;
-  const clip=new Audio(url(file));audio=clip;
-  clip.addEventListener('playing',()=>{if(audio===clip){clearTimeout(audioTimer);audioTimer=setTimeout(stopAudio,2000);}},{once:true});
-  clip.addEventListener('timeupdate',()=>{if(audio===clip&&clip.currentTime>=2)stopAudio();});
-  clip.addEventListener('ended',()=>{if(audio===clip)stopAudio();},{once:true});
+  const clip=soundClips.get(id);if(!clip)return;audio=clip;
   clip.play().catch(()=>{if(audio===clip)stopAudio();});
 }
 function svgEl(tag,attrs={}){const n=document.createElementNS(NS,tag);for(const [k,v]of Object.entries(attrs))n.setAttribute(k,v);return n;}
@@ -98,7 +107,7 @@ function buildShell(saved){
   $('#speech-toggle').onclick=()=>{$('.speech').hidden=!$('.speech').hidden;};
 
   $('#hint').onclick=showHint;
-  $('#zoom-toggle').onclick=()=>{zoom=zoom==='fit'?'large':'fit';resizeScene(true);};
+  $('#zoom-toggle').onclick=()=>{customScale=null;zoom=zoom==='fit'?'large':'fit';resizeScene(true);};
   $('#menu').onclick=()=>openDialog($('#menu-dialog'));
   for(const id of ['menu-x','resume'])$('#'+id).onclick=()=>closeDialog($('#menu-dialog'));
   $('#restart').onclick=()=>{$('#menu-dialog').close();askReset();};
@@ -116,6 +125,36 @@ function buildShell(saved){
     d.addEventListener('close',()=>{stopAudio();restoreFocus();});
   }
   const v=$('#viewport');
+  $('.speech').hidden=innerWidth<=700;
+  const beginTouch=e=>{
+    const touches=[...e.touches];if(!touches.length){gesture=null;return;}
+    const rect=$('#stage').getBoundingClientRect();
+    const x=touches.length>1?(touches[0].clientX+touches[1].clientX)/2:touches[0].clientX;
+    const y=touches.length>1?(touches[0].clientY+touches[1].clientY)/2:touches[0].clientY;
+    gesture={x,y,left:v.scrollLeft,top:v.scrollTop,scale,
+      anchorX:(x-rect.left)/scale,anchorY:(y-rect.top)/scale,
+      distance:touches.length>1?Math.hypot(touches[1].clientX-touches[0].clientX,touches[1].clientY-touches[0].clientY):0};
+  };
+  v.addEventListener('touchstart',e=>{clearTimeout(touchClickTimer);beginTouch(e);},{passive:true});
+  v.addEventListener('touchmove',e=>{
+    if(!gesture)return;e.preventDefault();
+    const t=[...e.touches];
+    if(t.length>1&&gesture.distance){
+      const distance=Math.hypot(t[1].clientX-t[0].clientX,t[1].clientY-t[0].clientY);
+      const fit=Math.min(v.clientWidth/1600,v.clientHeight/1200);
+      customScale=Math.max(fit,Math.min(2,gesture.scale*distance/gesture.distance));
+      zoom=customScale<=fit+.0001?'fit':'custom';resizeScene();
+      const rect=$('#stage').getBoundingClientRect();
+      v.scrollLeft+=rect.left+gesture.anchorX*scale-(t[0].clientX+t[1].clientX)/2;
+      v.scrollTop+=rect.top+gesture.anchorY*scale-(t[0].clientY+t[1].clientY)/2;
+      suppressClick=true;
+    }else if(t.length===1){
+      const dx=t[0].clientX-gesture.x,dy=t[0].clientY-gesture.y;
+      if(Math.hypot(dx,dy)>7){v.scrollLeft=gesture.left-dx;v.scrollTop=gesture.top-dy;suppressClick=true;}
+    }
+  },{passive:false});
+  const endTouch=e=>{beginTouch(e);touchClickTimer=setTimeout(()=>{suppressClick=false;},400);};
+  v.addEventListener('touchend',endTouch);v.addEventListener('touchcancel',endTouch);
   v.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'&&e.button===0)drag={x:e.clientX,y:e.clientY,left:v.scrollLeft,top:v.scrollTop,moved:false};});
   v.addEventListener('pointermove',e=>{if(!drag||e.buttons!==1)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.hypot(dx,dy)>7){drag.moved=true;v.classList.add('dragging');v.scrollLeft=drag.left-dx;v.scrollTop=drag.top-dy;}});
   const endDrag=()=>{if(drag){suppressClick=drag.moved;drag=null;v.classList.remove('dragging');setTimeout(()=>{suppressClick=false;},0);}};
@@ -239,7 +278,7 @@ function resizeScene(center=false){
   v.style.height=Math.max(220,innerHeight-top-12)+'px';
   const old=scale;
   const fit=Math.min(v.clientWidth/1600,v.clientHeight/1200);
-  const width=zoom==='fit'?fit*1600:Math.max(fit*1600,config.mobileDetailWidth)*(zoom==='large'?1.5:1);
+  const width=zoom==='custom'?Math.max(fit,customScale)*1600:zoom==='fit'?fit*1600:Math.max(fit*1600,config.mobileDetailWidth)*(zoom==='large'?1.5:1);
   scale=width/1600;$('#stage').style.width=width+'px';$('#stage').style.height=width*.75+'px';
   const zoomButton=$('#zoom-toggle');
   zoomButton.innerHTML=`<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6M6.5 10h7"/>${zoom==='fit'?'<path d="M10 6.5v7"/>':''}</svg><span>${zoom==='fit'?'Крупнее':'Показать целиком'}</span>`;
@@ -258,6 +297,7 @@ async function load(){
     const responses=await Promise.all(['config/izba.json','content/izba.json'].map(p=>fetch(url(p),{cache:'no-cache'})));
     if(responses.some(r=>!r.ok))throw Error('Не удалось загрузить данные избы.');
     [config,artifacts]=await Promise.all(responses.map(r=>r.json()));
+    prepareSounds();
     if(artifacts.length!==7||equipment.some(id=>!config.items[id]))throw Error('Неполный комплект данных.');
     const paths=new Set([config.background.image,...config.layers.map(s=>s.image),...Object.values(config.items).flatMap(a=>[a.cardImage,...(a.treasuryImage?[a.treasuryImage]:[]),...a.hidden.map(s=>s.image),...a.worn.map(s=>s.image)])]);
     await Promise.all([...paths].map(path=>new Promise((resolve,reject)=>{
