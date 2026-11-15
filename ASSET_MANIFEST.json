@@ -1,0 +1,338 @@
+[
+  {
+    "file": "assets/izba-background.png",
+    "source": "Изба\\Изба_фон.png",
+    "sourceSha256": "496a2f82d23d0d5ddeef098e1c5bdd1c0f65af98e2830f4459e7fcf1d121917c",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      0,
+      0,
+      1600,
+      1200
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/hero-base.png",
+    "source": "Изба\\Богатырь_раздетый.png",
+    "sourceSha256": "87f290ba2e7dc1fbbd170c0c706000482055ca487fbeb612489f66186429019f",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      202,
+      65,
+      610,
+      1178
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/stove-front.png",
+    "source": "Изба\\Печка.png",
+    "sourceSha256": "357cbf81bca0ba5584b257d5721c10ba3efa5f6bf418a41b13055741bb57e2b8",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      894,
+      0,
+      1600,
+      1178
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/bench-front.png",
+    "source": "Изба\\Лавка.png",
+    "sourceSha256": "6cb0fc1ac2f2fb52e6d9386e2feaf6997f2d19e2afa14faa6d8e111f58929a26",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      818,
+      660,
+      1367,
+      1110
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/pillow-front.png",
+    "source": "Изба\\Подушка .png",
+    "sourceSha256": "929b5f8e4b08c7a589b88a22e140e8d3f31a961c46d2708eca645f047cc35745",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      1037,
+      148,
+      1196,
+      261
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/chainmail-hidden.png",
+    "source": "Изба\\Кольчуга спрятанная.png",
+    "sourceSha256": "5cb3219f3853d6bad55a390bb4ca12043a15b2719c0b557a18fad3393fcd52b5",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      985,
+      84,
+      1378,
+      494
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/chainmail-worn-0.png",
+    "source": "Изба\\Кольчуга одетая.png",
+    "sourceSha256": "7671cb27cc9e2a77198ba63984031b3299e22b10519a59f327b5b9b3ce5d27f4",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      242,
+      217,
+      578,
+      722
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/helmet-hidden.png",
+    "source": "Изба\\Шлем спрятанный.png",
+    "sourceSha256": "d9c6f02c8a61c303584619abf9bf1df635bd0b658acdb7c40eba1b2758bd9c6c",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      969,
+      617,
+      1137,
+      759
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/helmet-worn-0.png",
+    "source": "Изба\\Шлем одетый.png",
+    "sourceSha256": "1f9eb272fbe3118b3c265e73d33f3a9ad2f25259be72773353a0d6432dd99ed2",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      354,
+      56,
+      496,
+      246
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/belt-hidden.png",
+    "source": "Изба\\Пояс спрятанный.png",
+    "sourceSha256": "962b980ecbb8feeb5fac1cba7c8a161ed5a03f2d90cf34440428145146acd752",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      949,
+      149,
+      1185,
+      337
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/belt-worn-0.png",
+    "source": "Изба\\Пояс одетый.png",
+    "sourceSha256": "9f1e970af73622e764142bdb7b4e1961e5d904272db5b1a46a2e45fb84cf10ff",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      315,
+      435,
+      523,
+      658
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/ring-hidden.png",
+    "source": "Изба\\Кольцо спрятанное.png",
+    "sourceSha256": "8d4538d8ce66cfbfe3bd1439895c7582dc6b3fc01b424504680084f69386828e",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      931,
+      871,
+      975,
+      903
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/ring-worn-0.png",
+    "source": "Изба\\Кольцо одетое.png",
+    "sourceSha256": "bf71901d7f15da810d97002da379fd8b4e3acb604a73356ad035f4216c07511a",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      256,
+      682,
+      282,
+      709
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/ring-card.png",
+    "source": "Изба\\Перстень.png",
+    "sourceSha256": "380daf5d752070c5fa04a7cf061bbe10b0e594af4d261e936438a3390c65042b",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      741,
+      592,
+      914,
+      720
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/boots-hidden.png",
+    "source": "Изба\\Сапог левый спрятанный.png",
+    "sourceSha256": "11799b3592a0448709c2906e0bb82c2c45591d313004990a7e98bb2b3a71a608",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      1217,
+      870,
+      1321,
+      1126
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/boots-right-hidden.png",
+    "source": "Изба\\Сапог правый спрятанный.png",
+    "sourceSha256": "d1a1a979163047f851ea47f35041ea59a5061ba7b198338ed3497432f7678ca9",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      1036,
+      851,
+      1181,
+      1061
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/boots-worn-0.png",
+    "source": "Изба\\Сапог левый одетый.png",
+    "sourceSha256": "3d090cdbf2871bffc1533ab619764c19803c161f3cf994d56543c9476bdcc4e1",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      216,
+      869,
+      364,
+      1181
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/boots-worn-1.png",
+    "source": "Изба\\Сапог правый одетый.png",
+    "sourceSha256": "8031452b07e9a370b856433000a225d3b1c7f0a7e9c648bb2e37a807477675dd",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      331,
+      876,
+      604,
+      1170
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/gusli-hidden.png",
+    "source": "Изба\\Гусли спрятанные.png",
+    "sourceSha256": "ece9e4e57323fd42c2605184feeb216a925b57996f9655da32ddcc0ba8a43f17",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      0,
+      783,
+      115,
+      858
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/gusli-card.png",
+    "source": "Богатырь исходные картинки\\Игра_гусли.png",
+    "sourceSha256": "8a420c4f3ed125489d36868317463c9d7ee534df9e2b9a57c6ce5a5b9c519857",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      1333,
+      670,
+      1433,
+      781
+    ],
+    "status": "customer_supplied"
+  },
+  {
+    "file": "assets/cup-hidden.png",
+    "source": "Изба\\Кубок спрятанный.png",
+    "sourceSha256": "d1128233a1a3324dfa157d83a43cb0ede2b67dd68c039629b08c4cffe1e31c98",
+    "canvas": [
+      1600,
+      1200
+    ],
+    "crop": [
+      871,
+      299,
+      986,
+      430
+    ],
+    "status": "customer_supplied"
+  }
+]

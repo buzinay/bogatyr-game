@@ -1,0 +1,107 @@
+[
+  {
+    "id": "chainmail",
+    "title": "Кольчуга",
+    "description": "Кольчуга — защитная рубашка из металлических колечек. Сгибается вместе с телом и помогает уберечься от ударов.",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Михайло Казаренин»",
+      "excerpt": "Крепки доспехи на могучих плечах,\nКуяк и панцирь — чиста серебра, А\nкольчуга на нем — красна золота.",
+      "sourceUrl": "https://ejka.ru/blog/byliny/3214.html",
+      "sourceLabel": "ejka.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Надеть"
+  },
+  {
+    "id": "helmet",
+    "title": "Шлем",
+    "description": "Шлем булатный/шапка железная — металлический головной убор богатыря. Как каска, защищает голову от ударов. Причёска помнётся, зато голова целее!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Получение силы (Исцеление Ильи-сидня. Илья Муромец и Святогор)",
+      "excerpt": "На Полкане-то шапка железная,\nНа Алешеньке сапожки зелен сафьян,\nНа Ильюшеньке кафтанчик\nрудожелтой камке,\nНа кафтане-те петельки шелковыя,\nВо петельках пуговки золочены,\nВо каждой во пуговке по камушку, Ну\nпо дорогу по камушку по яхонту,\nВо каждом во камушке по льву-зверу.",
+      "sourceUrl": "https://www.booksite.ru/fulltext/iliyamuromec/text.pdf",
+      "sourceLabel": "www.booksite.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Надеть"
+  },
+  {
+    "id": "belt",
+    "title": "Кушак",
+    "description": "Кушак — стягивает рубаху, а ещё на него можно подвесить кошель или ножны. Богатырю тоже нужно куда-то девать мелочи!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Добрыня и Змей»",
+      "excerpt": "Под кушак ён клал шалыгу\nподдорожную,\nИ он пошол во ты во норы во\nзмеиныи.",
+      "sourceUrl": "https://litmir.club/br/?b=25110&p=4",
+      "sourceLabel": "litmir.club",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Подпоясать"
+  },
+  {
+    "id": "ring",
+    "title": "Перстень",
+    "description": "Перстень — кольцо с украшением, например с драгоценным камнем. Его название произошло от старинного слова «перст» — палец. В сказаниях перстень мог хранить семейную тайну или помогать героям узнать друг друга.",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Повесть о Еруслане Лазаревиче",
+      "excerpt": "Как съезжаются два сильныя\nбогатыри: Еруслан Лазаревич ударил\nсына своего против сердца ретивого,\nи мало его из седла вон не вышиб; и\nЕруслан Ерусланович ударил отца\nсвоего против сердца ретивого, и\nухватил Еруслан Ерусланович копье\nрукою правою у отца своего, и\nвозсиял на руке перстень, а в\nперстни – камень самоцветной.",
+      "sourceUrl": "https://azbyka.ru/otechnik/Istorija_Tserkvi/biblioteka-literatury-drevnej-rusi-tom-15/25",
+      "sourceLabel": "azbyka.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Надеть"
+  },
+  {
+    "id": "boots",
+    "title": "Сапоги",
+    "description": "Богатырские сапоги — крепкая обувь для дальних дорог, иногда с железными каблуками. На цыпочках к врагу не подкрадёшься!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Вольга и Микула»",
+      "excerpt": "У оратая сапожки зелен сафьян:\nВот шилом пяты, носы ́востры,\nВот под пяту-пяту воробей пролетит,\nОколо носа хоть яйцо прокати.",
+      "sourceUrl": "https://feb-web.ru/feb/byliny/texts/rf1/rf1-0412.htm?cmd=p",
+      "sourceLabel": "feb-web.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Обуть"
+  },
+  {
+    "id": "gusli",
+    "title": "Гусли",
+    "description": "Гусли — старинный музыкальный инструмент с деревянным корпусом и натянутыми струнами. Музыкант перебирает струны пальцами, и они звенят. Под гусли пели песни и рассказывали о богатырских подвигах. А былинный Садко играл так чудесно, что его услышал сам Морской царь!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Садко",
+      "excerpt": "Говорил Садко-купец, богатый гость:\n— Ай же братцы, дружина хоробрая!\nДавайте мне гусельки яровчаты,\nПоиграть-то мне в остатнее:\nБольше мне в гусельки не игрывати.\nАли взять мне гусли с собой во сине\nморе?",
+      "sourceUrl": "https://classica-online.ru/catalog/sadko-bylina/",
+      "sourceLabel": "classica-online.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": null
+  },
+  {
+    "id": "cup",
+    "title": "Кубок",
+    "description": "Кубок — нарядный сосуд для питья на пиру. Подвиги совершены — можно и за стол!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Добрыня и Олеша»",
+      "excerpt": "Наливаёт он чару вина серебряну,\nСам подносит ее ко Настасьюшке\nМикитишне,\nСам спущает он золотой пярстень…",
+      "sourceUrl": "https://publicadomain.ru/russkie-narodnye-byliny/pro-dobrynyu-nikiticha/dobrynya-i-olesha",
+      "sourceLabel": "publicadomain.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": null
+  }
+]

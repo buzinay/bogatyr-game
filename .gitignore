@@ -1,0 +1,39 @@
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local dependencies and caches
+node_modules/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Local secrets and environment files
+.env
+.env.*
+!.env.example
+
+# Generated local archive
+/bogatyr-izba-v1.zip
+
+# Generated QA screenshots and result snapshots
+/qa/*.png
+/qa/*.jpg
+/qa/*.jpeg
+/qa/*.webp
+/qa/results.json
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+~$*
