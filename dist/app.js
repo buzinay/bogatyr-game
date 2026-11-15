@@ -1,12 +1,12 @@
 const host = document.getElementById('bogatyr-game');
 const root = host.attachShadow({mode:'open'});
 const style = document.createElement('link');
-style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=izba-mobile-1', import.meta.url).href;
+style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=izba-mobile-speech-3', import.meta.url).href;
 root.append(style);
 const mount = document.createElement('div');
 mount.className='loading'; mount.textContent='Загружаем игру…'; root.append(mount);
 const KEY='bogatyr-game:izba:v1';
-const BUILD='izba-mobile-audio-2';
+const BUILD='izba-mobile-speech-3';
 const NS='http://www.w3.org/2000/svg';
 const equipment=['chainmail','helmet','belt','ring','boots'];
 let config, artifacts, state, storageOK=true, saveNotice='', audio=null, activeCard=null;
@@ -125,7 +125,7 @@ function buildShell(saved){
     d.addEventListener('close',()=>{stopAudio();restoreFocus();});
   }
   const v=$('#viewport');
-  $('.speech').hidden=innerWidth<=700;
+  $('.speech').hidden=false;
   const beginTouch=e=>{
     const touches=[...e.touches];if(!touches.length){gesture=null;return;}
     const rect=$('#stage').getBoundingClientRect();
