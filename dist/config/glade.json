@@ -127,10 +127,10 @@
       "worn": [
         {
           "image": "assets/glade/spear-worn.png",
-          "x": 769,
-          "y": 100,
-          "width": 62,
-          "height": 1065,
+          "x": 0,
+          "y": 578,
+          "width": 782,
+          "height": 148,
           "z": 42
         }
       ],
@@ -302,11 +302,11 @@
       "worn": [
         {
           "image": "assets/glade/sabre-worn.png",
-          "x": 754,
-          "y": 174,
-          "width": 99,
-          "height": 384,
-          "z": 39
+          "x": 242,
+          "y": 607,
+          "width": 387,
+          "height": 88,
+          "z": 42
         }
       ],
       "cardImage": "assets/glade/sabre-card.png",

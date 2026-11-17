@@ -7,19 +7,24 @@ cfgpath=ROOT/'dist/config/glade.json';cfg=json.loads(cfgpath.read_text(encoding=
 layers=json.loads((ROOT/'qa/glade-layers/layers.json').read_text(encoding='utf-8'))
 manifestpath=ROOT/'GLADE_ASSET_MANIFEST.json';manifest=json.loads(manifestpath.read_text(encoding='utf-8'))
 def sprite(index,name,z):
+    if isinstance(index,str):
+        matches=[r for r in layers if r['name']==index]
+        if len(matches)!=1:raise ValueError('Expected one PSD layer: '+index)
+        index=matches[0]['index']
     layer=layers[index];file='assets/glade/'+name+'.png';shutil.copyfile(ROOT/'qa/glade-layers'/layer['file'],ROOT/'dist'/file)
     l,t,r,b=layer['crop'];s=dict(image=file,x=l,y=t,width=r-l,height=b-t,z=z)
     manifest[:]=[m for m in manifest if m.get('image')!=file]
     manifest.append(dict(**s,source='Поляна/Поляна_собери богатыря.psd',layerIndex=index,layerName=layer['name']))
     return s
 items=cfg['items']
-for id,index in [('raspberry_1',65),('raspberry_2',23),('sun',46),('plough',22)]:
+for id,index in [('raspberry_1','Малина Левая'),('raspberry_2','Малина Правая'),('sun','Layer 46'),('plough','Соха Снятая')]:
     items[id]['placed']=[sprite(index,id+'-placed',36)]
-items['horse']['placed']=[sprite(37,'horse-placed',37)]
+items['horse']['placed']=[sprite('Лошадь Большая','horse-placed',37)]
 items['horse']['placedMark']=[980,260]
-items['rein'].update(placed=[sprite(38,'rein-placed',38)],placeAfter='horse',placedMark=[1020,345])
-items['sword']['worn']=[sprite(41,'sword-sheath',41),sprite(44,'sword-worn',42)]
-items['spear']['worn']=[sprite(62,'spear-worn',42)]
+items['rein'].update(placed=[sprite('Повод Большой','rein-placed',38)],placeAfter='horse',placedMark=[1020,345])
+items['sword']['worn']=[sprite('Ножны','sword-sheath',41),sprite('Меч В Руке','sword-worn',42)]
+items['spear']['worn']=[sprite('Копье В Правой','spear-worn',42)]
+items['sabre']['worn']=[sprite('Сабля В Правой','sabre-worn',42)]
 for id,x,y,h in [('spear',1260,520,570),('sword',1310,780,300),('sabre',1410,780,290),('mace',1510,850,230)]:
     image=items[id]['cardImage'];w0,h0=Image.open(ROOT/'dist'/image).size
     items[id]['placed']=[dict(image=image,x=x,y=y,width=round(h*w0/h0),height=h,z=38)]

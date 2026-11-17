@@ -1,12 +1,12 @@
 const host = document.getElementById('bogatyr-game');
 const root = host.attachShadow({mode:'open'});
 const style = document.createElement('link');
-style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=glade-6', import.meta.url).href;
+style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=glade-7', import.meta.url).href;
 root.append(style);
 const mount = document.createElement('div');
 mount.className='loading'; mount.textContent='Загружаем игру…'; root.append(mount);
 const KEY='bogatyr-game:izba:v1';
-const BUILD='glade-6';
+const BUILD='glade-7';
 const NS='http://www.w3.org/2000/svg';
 const equipment=['chainmail','helmet','belt','ring','boots'];
 const weapons=['sabre','sword','mace','spear'];
