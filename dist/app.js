@@ -1,14 +1,16 @@
 const host = document.getElementById('bogatyr-game');
 const root = host.attachShadow({mode:'open'});
 const style = document.createElement('link');
-style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=izba-mobile-speech-3', import.meta.url).href;
+style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=glade-6', import.meta.url).href;
 root.append(style);
 const mount = document.createElement('div');
 mount.className='loading'; mount.textContent='Загружаем игру…'; root.append(mount);
 const KEY='bogatyr-game:izba:v1';
-const BUILD='izba-mobile-speech-3';
+const BUILD='glade-6';
 const NS='http://www.w3.org/2000/svg';
 const equipment=['chainmail','helmet','belt','ring','boots'];
+const weapons=['sabre','sword','mace','spear'];
+let scenes,allItems,scene='izba';
 let config, artifacts, state, storageOK=true, saveNotice='', audio=null, activeCard=null;
 let audioTimer=null;
 const soundClips=new Map();
@@ -18,20 +20,40 @@ const images = new Map();
 const $=s=>root.querySelector(s);
 const el=(tag,cls,text)=>{const n=document.createElement(tag); if(cls)n.className=cls; if(text!==undefined)n.textContent=text; return n;};
 const url=path=>{const u=new URL(path,import.meta.url);u.searchParams.set('v',BUILD);return u.href;};
-const fresh=()=>({schemaVersion:1,foundIds:[],equippedIds:[],screen:'izba',soundEnabled:true});
+const fresh=()=>({schemaVersion:2,foundIds:[],equippedIds:[],screen:'izba',soundEnabled:true,weaponChoice:null,weaponLocked:false});
 const has=id=>state.foundIds.includes(id);
 const worn=id=>state.equippedIds.includes(id);
-const finished=()=>artifacts.every(a=>has(a.id))&&equipment.every(worn);
+const carried=id=>worn(id)||state.weaponChoice===id;
+const sceneArtifacts=()=>artifacts.filter(a=>a.scene===scene);
+const placed=id=>has(id)&&Boolean(config.items[id].placed)&&(!config.items[id].placeAfter||has(config.items[id].placeAfter));
+const sceneSprites=id=>placed(id)?config.items[id].placed:config.items[id].hidden;
+const izbaFinished=()=>artifacts.filter(a=>a.scene==='izba').every(a=>has(a.id))&&equipment.every(worn);
+const gladeFinished=()=>artifacts.filter(a=>a.scene==='glade').every(a=>has(a.id))&&worn('shield')&&Boolean(state.weaponChoice);
+const finished=()=>scene==='izba'?izbaFinished():gladeFinished();
+function enterScene(id){
+  if(id==='glade'&&!izbaFinished())return;
+  scene=id;config={...scenes[id],items:allItems,effects:scenes.izba.effects};
+  state.screen=id;zoom='fit';customScale=null;hintId=null;gesture=null;drag=null;save();
+  $('.speech').hidden=false;setScreen('game');focusHeading('#scene-title');
+}
 function readSave(){
   try{
     const raw=localStorage.getItem(KEY); if(!raw)return null;
     const data=JSON.parse(raw), ids=artifacts.map(a=>a.id);
-    if(data.schemaVersion!==1||!Array.isArray(data.foundIds)||!Array.isArray(data.equippedIds)||
+    if(![1,2].includes(data.schemaVersion)||!Array.isArray(data.foundIds)||!Array.isArray(data.equippedIds)||
       new Set(data.foundIds).size!==data.foundIds.length||new Set(data.equippedIds).size!==data.equippedIds.length||
-      data.foundIds.some(id=>!ids.includes(id))||data.equippedIds.some(id=>!equipment.includes(id)||!data.foundIds.includes(id))||
-      !['izba','complete'].includes(data.screen)||typeof data.soundEnabled!=='boolean'||
-      (data.screen==='complete'&&(data.foundIds.length!==7||data.equippedIds.length!==5)))throw Error('invalid');
-    return {schemaVersion:1,foundIds:data.foundIds,equippedIds:data.equippedIds,screen:data.screen,soundEnabled:data.soundEnabled};
+      data.foundIds.some(id=>!ids.includes(id))||data.equippedIds.some(id=>![...equipment,'shield'].includes(id)||!data.foundIds.includes(id))||
+      !['izba','glade','complete'].includes(data.screen)||typeof data.soundEnabled!=='boolean')throw Error('invalid');
+    if(data.schemaVersion===1){data.screen='izba';data.weaponChoice=null;data.weaponLocked=false;}
+    if(data.weaponChoice!==null&&(!weapons.includes(data.weaponChoice)||!data.foundIds.includes(data.weaponChoice)))throw Error('invalid');
+    if(typeof data.weaponLocked!=='boolean')throw Error('invalid');
+    const izbaIDs=artifacts.filter(a=>a.scene==='izba').map(a=>a.id);
+    const ready=izbaIDs.every(id=>data.foundIds.includes(id))&&equipment.every(id=>data.equippedIds.includes(id));
+    if((data.screen!=='izba'||data.foundIds.some(id=>!izbaIDs.includes(id)))&&!ready)throw Error('invalid');
+    const gladeReady=artifacts.filter(a=>a.scene==='glade').every(a=>data.foundIds.includes(a.id))&&data.equippedIds.includes('shield')&&Boolean(data.weaponChoice);
+    if((data.screen==='complete'||data.weaponLocked)&&!gladeReady)throw Error('invalid');
+    if(data.screen==='complete'&&!data.weaponLocked)throw Error('invalid');
+    return {...fresh(),foundIds:data.foundIds,equippedIds:data.equippedIds,screen:data.screen,soundEnabled:data.soundEnabled,weaponChoice:data.weaponChoice,weaponLocked:data.weaponLocked};
   }catch(error){
     if(error.message==='invalid'||error instanceof SyntaxError)saveNotice='Сохранение не удалось прочитать. Можно начать новый поход.';
     else {storageOK=false;saveNotice='Браузер не разрешил сохранение. Можно играть до закрытия страницы.';}
@@ -42,9 +64,9 @@ function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch{stora
 function updateStorageNotice(){const n=$('#storage-note'); if(n){n.hidden=storageOK;n.textContent='Прогресс хранится только до закрытия страницы: браузер запретил сохранение.';}}
 function stopAudio(){clearTimeout(audioTimer);audioTimer=null;if(audio){audio.pause();audio.currentTime=0;audio=null;}}
 function prepareSounds(){
-  for(const [id,item]of Object.entries(config.items)){
+  for(const [id,item]of Object.entries({...config.items,...config.effects})){
     if(!item.sound)continue;
-    const clip=new Audio();clip.preload='auto';clip.src=url(item.sound);
+    const clip=new Audio();clip.preload='auto';clip.src=url(item.sound);clip.volume=item.volume??1;
     clip.addEventListener('playing',()=>{if(audio===clip){clearTimeout(audioTimer);audioTimer=setTimeout(stopAudio,2000);}});
     clip.addEventListener('timeupdate',()=>{if(audio===clip&&clip.currentTime>=2)stopAudio();});
     clip.addEventListener('ended',()=>{if(audio===clip)stopAudio();});
@@ -52,7 +74,7 @@ function prepareSounds(){
   }
 }
 function playSound(id){
-  stopAudio();const file=config.items[id]?.sound;if(!file||!state.soundEnabled)return;
+  stopAudio();const file=(config.items[id]||config.effects?.[id])?.sound;if(!file||!state.soundEnabled)return;
   const clip=soundClips.get(id);if(!clip)return;audio=clip;
   clip.play().catch(()=>{if(audio===clip)stopAudio();});
 }
@@ -93,8 +115,9 @@ function buildShell(saved){
     <dialog id="menu-dialog" aria-labelledby="menu-title"><header class="dialog-head"><h2 id="menu-title">Меню похода</h2><button class="close" id="menu-x" aria-label="Закрыть меню">×</button></header><div class="dialog-body menu-actions"><p>Ищем семь предметов в избе. Найденные вещи ждут в Сокровищнице.</p><button id="resume">Вернуться в избу</button><button id="restart">Начать заново</button><small>Прогресс сохраняется в этом браузере. На другом устройстве он не появится.</small></div></dialog>
     <dialog id="reset-dialog" aria-labelledby="reset-title"><header class="dialog-head"><h2 id="reset-title">Начать новый поход?</h2></header><div class="dialog-body"><p>Все находки и надетые вещи будут сброшены. Искать предметы можно будет снова.</p></div><footer class="dialog-foot"><button id="cancel-reset">Остаться в игре</button><button id="confirm-reset" class="primary">Да, начать заново</button></footer></dialog>`;
   $('.intro-art .room').src=url(config.background.image);$('.intro-art .hero').src=url(config.layers.find(s=>s.image.includes('hero-base')).image);
-  $('#start-actions').append(button('Начать поход',()=>{if(saved){askReset();}else{state=fresh();save();setScreen('game');focusHeading('#scene-title');}},'primary'));
-  if(saved)$('#start-actions').prepend(button('Продолжить',()=>{setScreen(state.screen==='complete'?'complete':'game');focusHeading(state.screen==='complete'?'#complete h2':'#scene-title');},'primary'));
+  $('.no-audio').textContent='Изба и Поляна · 18 находок · без спешки';
+  $('#start-actions').append(button('Начать поход',()=>{if(saved){askReset();}else{state=fresh();enterScene('izba');}},'primary'));
+  if(saved)$('#start-actions').prepend(button('Продолжить',()=>{if(state.screen==='complete'){setScreen('complete');focusHeading('#complete h2');}else enterScene(state.screen);},'primary'));
   if(saveNotice){$('#save-message').hidden=false;$('#save-message').textContent=saveNotice;}
   updateStorageNotice();
   const hasAudio=Object.values(config.items).some(item=>Boolean(item.sound));
@@ -114,9 +137,13 @@ function buildShell(saved){
   $('#complete-reset').onclick=askReset;
   $('#cancel-reset').onclick=()=>closeDialog($('#reset-dialog'));
   $('#confirm-reset').onclick=()=>{
-    const sound=state.soundEnabled;state=fresh();state.soundEnabled=sound;save();$('#reset-dialog').close();if($('#treasury').open)$('#treasury').close();setScreen('game');focusHeading('#scene-title');
+    const sound=state.soundEnabled;state=fresh();state.soundEnabled=sound;save();$('#reset-dialog').close();if($('#treasury').open)$('#treasury').close();enterScene('izba');
   };
-  $('#back').onclick=()=>{state.screen='izba';save();setScreen('game');};
+  $('#back').onclick=()=>enterScene('glade');
+  const nav=el('div','menu-actions');
+  nav.append(button('Изба',()=>{$('#menu-dialog').close();enterScene('izba');}));
+  const gladeNav=button('Поляна',()=>{$('#menu-dialog').close();enterScene('glade');});gladeNav.id='menu-glade';nav.append(gladeNav);
+  $('#menu-dialog .dialog-body').prepend(nav);
   $('#read-more').onclick=()=>{const open=$('#reading').hidden;$('#reading').hidden=!open;$('#read-more').textContent=open?'Свернуть':'Читать ещё';$('#read-more').setAttribute('aria-expanded',String(open));};
   for(const id of ['card-x','card-close'])$('#'+id).onclick=()=>closeDialog($('#card'));
   $('#equip').onclick=equipActive;
@@ -165,20 +192,31 @@ function buildShell(saved){
 }
 function askReset(){openDialog($('#reset-dialog'));}
 function render(){
-  $('#count').textContent=`Найдено: ${state.foundIds.length}/7`;
+  const current=sceneArtifacts();
+  $('#scene-title').textContent=scene==='izba'?'Изба':'Поляна';
+  $('#game').setAttribute('aria-label','Сцена '+$('#scene-title').textContent);
+  $('#viewport').setAttribute('aria-label',$('#scene-title').textContent+'. Увеличивай и перемещай сцену, чтобы осмотреть её целиком');
+  $('.task').textContent=scene==='izba'?'Найди 7 предметов и одень богатыря':'Найди 11 объектов. Не забудь обе малины!';
+  $('#count').textContent=`Найдено: ${current.filter(a=>has(a.id)).length}/${current.length}`;
   $('#treasury-toggle').textContent=`Сокровищница · ${state.foundIds.length}`;
+  $('#menu-glade').disabled=!izbaFinished();$('#resume').textContent=scene==='izba'?'Вернуться в избу':'Вернуться на поляну';
+  $('#menu-dialog .dialog-body > p').textContent=scene==='izba'?'Ищем семь предметов в избе. Найденные вещи ждут в Сокровищнице.':'Ищем одиннадцать объектов на поляне. Найди все четыре вида оружия и выбери одно.';
   const sprites=$('#sprites');sprites.replaceChildren();
   const all=[config.background,...config.layers];
-  for(const a of artifacts)all.push(...(worn(a.id)?config.items[a.id].worn:config.items[a.id].hidden).map(s=>({...s,artifactId:worn(a.id)?null:a.id})));
-  for(const s of all){const img=el('img','sprite');if(s.artifactId)img.dataset.artifact=s.artifactId;img.alt='';img.draggable=false;img.src=url(s.image);Object.assign(img.style,{left:s.x/16+'%',top:s.y/12+'%',width:s.width/16+'%',height:s.height/12+'%',zIndex:String(s.z||0)});sprites.append(img);}
+  for(const a of current)all.push(...(carried(a.id)?config.items[a.id].worn:sceneSprites(a.id)).map(s=>({...s,artifactId:carried(a.id)?null:a.id,carriedId:carried(a.id)?a.id:null})));
+  for(const s of all){const img=el('img','sprite');if(s.artifactId)img.dataset.artifact=s.artifactId;if(s.carriedId)img.dataset.carried=s.carriedId;img.alt='';img.draggable=false;img.src=url(s.image);Object.assign(img.style,{left:s.x/16+'%',top:s.y/12+'%',width:s.width/16+'%',height:s.height/12+'%',zIndex:String(s.z||0),transform:s.rotation?`rotate(${s.rotation}deg)`:''});sprites.append(img);}
   renderHits();renderTreasury();renderStatus();
 }
 function renderHits(){
   const hits=$('#hits');hits.replaceChildren();
   for(const im of root.querySelectorAll('[data-artifact]'))im.classList.toggle('lit',im.dataset.artifact===hintId);
-  for(const a of artifacts){
-    if(worn(a.id))continue;
-    const d=config.hitAreas[a.id].map(p=>'M'+p.map(pt=>pt.join(',')).join('L')+'Z').join('');
+  for(const a of sceneArtifacts()){
+    if(carried(a.id))continue;
+    if(placed(a.id)&&!sceneSprites(a.id).length){
+      const [x,y]=config.items[a.id].placedMark;const mark=svgEl('text',{x,y,class:'found-mark','aria-hidden':'true'});mark.textContent='✓';hits.append(mark);continue;
+    }
+    const areas=placed(a.id)?sceneSprites(a.id).map(s=>[[s.x,s.y],[s.x+s.width,s.y],[s.x+s.width,s.y+s.height],[s.x,s.y+s.height]]):config.hitAreas[a.id];
+    const d=areas.map(p=>'M'+p.map(pt=>pt.join(',')).join('L')+'Z').join('');
     const path=svgEl('path',{d,role:'button',tabindex:'0','aria-label':a.title+(has(a.id)?', найдено':''),'data-id':a.id,class:'target'+(hintId===a.id?' hint':'')});
     const light=on=>{for(const im of root.querySelectorAll(`[data-artifact="${a.id}"]`))im.classList.toggle('lit',on||hintId===a.id);};
     path.addEventListener('pointerenter',e=>{light(true);if(e.pointerType==='mouse'&&!drag)playSound(a.id);});
@@ -197,7 +235,7 @@ function renderHits(){
     path.addEventListener('focus',()=>{if(path.matches(':focus-visible'))revealItem(a.id);});
     hits.append(path);
     if(has(a.id)){
-      const [x,y]=config.hitAreas[a.id][0][0];const mark=svgEl('text',{x:x+8,y:y-10,class:'found-mark','aria-hidden':'true'});mark.textContent='✓';hits.append(mark);
+      const [x,y]=placed(a.id)&&config.items[a.id].placedMark?config.items[a.id].placedMark:[areas[0][0][0]+8,areas[0][0][1]-10];const mark=svgEl('text',{x,y,class:'found-mark','aria-hidden':'true'});mark.textContent='✓';hits.append(mark);
     }
   }
 }
@@ -206,24 +244,25 @@ function alphaAt(sprite,x,y){
   const im=images.get(sprite.image);return im.alpha[Math.floor((y-sprite.y)/sprite.height*im.height)*im.width+Math.floor((x-sprite.x)/sprite.width*im.width)];
 }
 function visibleHit(id,x,y){
-  return config.items[id].hidden.some(s=>alphaAt(s,x,y)>24&&!config.layers.some(front=>(front.z||0)>(s.z||0)&&alphaAt(front,x,y)>128));
+  return sceneSprites(id).some(s=>alphaAt(s,x,y)>24&&!config.layers.some(front=>(front.z||0)>(s.z||0)&&alphaAt(front,x,y)>128));
 }
 function renderTreasury(){
   const grid=$('#treasury-grid');grid.replaceChildren();
   for(const a of artifacts){
-    if(!has(a.id)){const n=el('div','empty-slot','?');n.setAttribute('aria-label','Ещё не найдено');grid.append(n);continue;}
+    if(!has(a.id)){if(a.scene!==scene)continue;const n=el('div','empty-slot','?');n.setAttribute('aria-label','Ещё не найдено');grid.append(n);continue;}
     const b=button('',()=>{$('#treasury').close();openCard(a.id);},'treasure');b.dataset.id=a.id;b.setAttribute('aria-label',a.title+', открыть карточку');
-    const im=el('img');im.alt='';im.src=url(config.items[a.id].treasuryImage||config.items[a.id].cardImage);b.append(im,el('span','',a.title),el('span','equipped',worn(a.id)?'✓ Надето':'✓ Найдено'));grid.append(b);
+    const im=el('img');im.alt='';im.src=url(config.items[a.id].treasuryImage||config.items[a.id].cardImage);b.append(im,el('span','',a.title),el('span','equipped',state.weaponChoice===a.id?'✓ Выбрано':worn(a.id)?'✓ Надето':'✓ Найдено'));grid.append(b);
   }
 }
 function renderStatus(){
+  if(scene==='glade'){renderGladeStatus();return;}
   const box=$('#status');box.classList.toggle('success',finished());box.replaceChildren();
   if(finished()){
     box.append(el('p','','Теперь я готов! Гусли пусть дома дожидаются — будет что сыграть после похода. А мы пойдём на поляну: пора выбрать оружие и найти коня'));
     $('.speech').hidden=false;
-    box.append(button('На поляну',()=>{state.screen='complete';save();setScreen('complete');focusHeading('#complete h2');},'primary'));return;
+    box.append(button('На поляну',()=>enterScene('glade'),'primary'));return;
   }
-  if(state.foundIds.length===7){
+  if(sceneArtifacts().every(a=>has(a.id))){
     $('.speech').hidden=false;
     box.append(el('p','','Всё найдено! Теперь надень снаряжение на богатыря'));
     const list=el('div','missing');for(const a of artifacts.filter(a=>equipment.includes(a.id)&&!worn(a.id)))list.append(button(a.actionLabel+': '+a.title,()=>openCard(a.id)));box.append(list);return;
@@ -231,44 +270,79 @@ function renderStatus(){
   box.append(el('p','','В поход собрался, а сапоги ещё не надел! Помоги найти снаряжение. Заодно осмотримся: что ещё интересного есть в избе?'));
 
 }
+function renderGladeStatus(){
+  const box=$('#status');box.replaceChildren();box.classList.toggle('success',gladeFinished());
+  const allFound=sceneArtifacts().every(a=>has(a.id));
+  if(gladeFinished()){
+    $('.speech').hidden=false;
+    box.append(el('p','','Всё готово! И оружие выбрали, и про соху узнали. А теперь — в лес. Там внимательный взгляд пригодится не меньше богатырской силы'));
+    box.append(button('В лес',()=>{state.weaponLocked=true;state.screen='complete';save();setScreen('complete');focusHeading('#complete h2');},'primary'));
+  }else if(allFound){
+    $('.speech').hidden=false;box.append(el('p','','Всё найдено! '+(!worn('shield')?'Возьми щит. ':'')+(!state.weaponChoice?'Выбери оружие для богатыря.':'')));
+    if(!worn('shield'))box.append(button('Взять щит',()=>openCard('shield')));
+  }else box.append(el('p','','Доспехи на мне, а сборы ещё не закончены. Нужно выбрать оружие и подготовить коня. Осмотрись внимательно: на поляне найдутся вещи и для ратного дела, и для мирного труда'));
+  if(has('horse')&&has('rein'))box.append(el('p','horse-ready','✓ Конь готов к дороге'));
+  if(weapons.some(has)){
+    box.append(el('p','','Сабля, меч, булава или копьё? Выбери, что богатырь возьмёт в этот поход'));
+    const choices=el('div','weapon-choices');
+    for(const id of weapons){const a=artifacts.find(a=>a.id===id),b=button(a.title+(state.weaponChoice===id?' ✓':''),()=>openCard(id));b.disabled=!has(id);b.setAttribute('aria-pressed',String(state.weaponChoice===id));choices.append(b);}
+    box.append(choices);if(state.weaponLocked)box.append(el('small','','Оружие для этого похода уже выбрано.'));
+  }
+}
 function openCard(id){
   if($('#card').open)return;
   const a=artifacts.find(a=>a.id===id);activeCard=id;
+  if(!a||(!has(id)&&a.scene!==scene))return;
+  const secondBerry=!has(id)&&id.startsWith('raspberry')&&has(id==='raspberry_1'?'raspberry_2':'raspberry_1');
   const first=!has(id);returnFocus=root.activeElement;
   if(first){state.foundIds.push(id);save();}
   if(hintId===id)hintId=null;
   // Remember the triggering ID: rendering can replace the original scene/collection element.
-  $('#count').textContent=`Найдено: ${state.foundIds.length}/7`;$('#treasury-toggle').textContent=`Сокровищница · ${state.foundIds.length}`;
-  renderTreasury();renderStatus();renderHits();
-  $('#card-title').textContent=a.title;$('#description').textContent=a.description;$('#card-image').src=url(config.items[id].cardImage);$('#card-image').alt=a.title;
+  render();
+  $('#card-title').textContent=a.title;$('#description').textContent=secondBerry?'Обе малины найдены!':a.description;$('#card-image').src=url(config.items[id].cardImage);$('#card-image').alt=a.title;
+  $('#card-image').classList.toggle('mini',config.items[id].cardScale===0.2);
   const reading=a.moreReading;const available=reading&&['customer_supplied','approved'].includes(reading.status);
-  $('#read-more').hidden=!available;$('#read-more').textContent='Читать ещё';$('#read-more').setAttribute('aria-expanded','false');$('#reading').hidden=true;
+  $('#read-more').hidden=!available||secondBerry;$('#read-more').textContent='Читать ещё';$('#read-more').setAttribute('aria-expanded','false');$('#reading').hidden=true;
   if(available){$('#reading-title').textContent=reading.title;$('#excerpt').textContent=reading.excerpt;$('#source-label').textContent='Источник: '+reading.sourceLabel;$('#source').href=reading.sourceUrl;}
-  $('#equip').hidden=!a.actionLabel||worn(id);$('#equip').textContent=a.actionLabel||'';
+  $('#equip').hidden=!a.actionLabel||worn(id)||(a.scene!==scene)||(weapons.includes(id)&&(state.weaponLocked||state.weaponChoice===id));$('#equip').textContent=weapons.includes(id)?'Выбрать: '+a.title:a.actionLabel||'';
   $('#card-note').textContent=cardNote(id);
-  $('#card .dialog-body').scrollTop=0;$('#card').showModal();playSound(id);
+  $('#card .dialog-body').scrollTop=0;$('#card').showModal();playSound(first&&placed(id)?'success':id);
 }
 function cardNote(id){
+  if(weapons.includes(id))return state.weaponChoice===id?'✓ Это оружие выбрано для похода.':state.weaponLocked?'Выбор оружия уже закреплён до нового прохождения.':'Выбери одно оружие в руки богатырю. Остальные находки останутся в Сокровищнице.';
+  if(id==='shield')return worn(id)?'✓ Щит взят.':'Щит можно взять независимо от выбранного оружия.';
+  if(id==='horse')return has('rein')?'✓ Конь стоит за богатырём. Повод найден, конь готов к дороге.':'✓ Конь теперь стоит за богатырём. Осталось найти повод.';
+  if(id==='rein')return has('horse')?'✓ Повод надет на коня. Конь готов к дороге.':'✓ Повод найден. Найди коня, чтобы надеть на него повод.';
+  if(artifacts.find(a=>a.id===id)?.scene==='glade')return '✓ Найдено! Предмет перемещён на своё место на поляне.';
   if(worn(id))return id==='belt'&&worn('chainmail')?'✓ Кушак надет под кольчугу. Он скрыт доспехом, но уже на богатыре.':'✓ Уже надето на богатыря.';
   if(id==='belt')return worn('chainmail')?'Кольчуга уже на богатыре. Он приподнимет её и подвяжет кушак снизу — снимать доспех не придётся. Кушак будет скрыт под кольчугой.':'Подвяжем кушак под кольчугу. Когда наденем доспех, он скроется под ним.';
   if(id==='chainmail'&&worn('belt'))return 'Кушак останется под кольчугой. Находка не потеряется, даже если её не видно.';
-  if(['gusli','cup'].includes(id))return '✓ Найдено! Этот предмет останется в избе.';
+  if(id==='gusli')return '✓ Найдено! Гусли теперь стоят на лавке.';
+  if(id==='cup')return '✓ Найдено! Кубок теперь стоит на полочке.';
   return 'Вещь уже найдена. Надень её сейчас или вернись к ней позже через Сокровищницу.';
 }
 function equipActive(){
-  if(!activeCard||!has(activeCard)||worn(activeCard)||!equipment.includes(activeCard))return;
+  if(!activeCard||!has(activeCard)||artifacts.find(a=>a.id===activeCard)?.scene!==scene)return;
+  if(weapons.includes(activeCard)){
+    if(state.weaponLocked||state.weaponChoice===activeCard)return;
+    state.weaponChoice=activeCard;save();render();playSound('success');$('#equip').hidden=true;$('#card-note').textContent=cardNote(activeCard);$('#card-close').focus();return;
+  }
+  if(worn(activeCard)||![...equipment,'shield'].includes(activeCard))return;
   state.equippedIds.push(activeCard);save();render();
+  playSound('success');
   $('#equip').hidden=true;$('#card-note').textContent=cardNote(activeCard);$('#live').textContent=artifacts.find(a=>a.id===activeCard).title+': надето';
   $('#card-close').focus();
 }
 function showHint(){
-  const next=artifacts.find(a=>!has(a.id));
-  if(!next){const missing=equipment.find(id=>!worn(id));if(missing)openCard(missing);else $('#live').textContent='Всё найдено, богатырь одет. Можно отправляться на поляну.';return;}
+  const next=sceneArtifacts().find(a=>!has(a.id));
+  if(!next){const missing=(scene==='izba'?equipment:['shield']).find(id=>!worn(id));if(missing)openCard(missing);else if(scene==='glade'&&!state.weaponChoice)openCard(weapons.find(has));else{$('.speech').hidden=false;renderStatus();}return;}
   hintId=next.id;renderHits();if(innerWidth<=700&&scale<.5){zoom='detail';resizeScene();}revealItem(next.id);
   $('#live').textContent='Подсказка: одна находка выделена светлой обводкой.';
 }
 function revealItem(id){
-  const p=config.hitAreas[id].flat(),xs=p.map(t=>t[0]),ys=p.map(t=>t[1]);
+  if(placed(id)&&!sceneSprites(id).length)return;
+  const areas=placed(id)?sceneSprites(id).map(s=>[[s.x,s.y],[s.x+s.width,s.y+s.height]]):config.hitAreas[id];
+  const p=areas.flat(),xs=p.map(t=>t[0]),ys=p.map(t=>t[1]);
   const x=(Math.min(...xs)+Math.max(...xs))/2,y=(Math.min(...ys)+Math.max(...ys))/2;
   const v=$('#viewport'),stage=$('#stage');v.scrollLeft=stage.offsetLeft+x*scale-v.clientWidth/2;v.scrollTop=stage.offsetTop+y*scale-v.clientHeight/2;
 }
@@ -285,21 +359,26 @@ function resizeScene(center=false){
   if(center){v.scrollLeft=0;v.scrollTop=0;}else if(old!==scale){v.scrollLeft*=scale/old;v.scrollTop*=scale/old;}
 }
 function renderComplete(){
-  // Render the actual equipped layers on a transparent canvas, including belt below chainmail.
-  const canvas=document.createElement('canvas');canvas.width=460;canvas.height=1140;const ctx=canvas.getContext('2d');
-  const base=config.layers.find(l=>l.image.includes('hero-base'));
-  const layers=[base,...equipment.flatMap(id=>config.items[id].worn)].sort((a,b)=>a.z-b.z);
-  for(const s of layers)ctx.drawImage(images.get(s.image).image,s.x-180,s.y-45,s.width,s.height);
+  $('#complete h2').textContent='Вторая сцена пройдена';
+  $('#complete > p').textContent='Ты нашёл все 11 объектов, выбрал оружие и взял щит. Богатырь готов отправиться в лес!';
+  $('#complete .muted').textContent='Лес появится в следующей сборке.';$('#back').textContent='Вернуться на поляну';
+  const canvas=document.createElement('canvas');canvas.width=1600;canvas.height=1200;const ctx=canvas.getContext('2d');
+  const cfg=scenes.glade;
+  const layers=[cfg.background,...cfg.layers,...artifacts.filter(a=>a.scene==='glade').flatMap(a=>carried(a.id)?allItems[a.id].worn:sceneSprites(a.id))].sort((a,b)=>(a.z||0)-(b.z||0));
+  for(const s of layers){ctx.save();ctx.translate(s.x+s.width/2,s.y+s.height/2);ctx.rotate((s.rotation||0)*Math.PI/180);ctx.drawImage(images.get(s.image).image,-s.width/2,-s.height/2,s.width,s.height);ctx.restore();}
   $('#complete-hero').src=canvas.toDataURL();
 }
 async function load(){
   try{
-    const responses=await Promise.all(['config/izba.json','content/izba.json'].map(p=>fetch(url(p),{cache:'no-cache'})));
+    const responses=await Promise.all(['config/izba.json','content/izba.json','config/glade.json','content/glade.json'].map(p=>fetch(url(p),{cache:'no-cache'})));
     if(responses.some(r=>!r.ok))throw Error('Не удалось загрузить данные избы.');
-    [config,artifacts]=await Promise.all(responses.map(r=>r.json()));
+    const [izba,izbaContent,glade,gladeContent]=await Promise.all(responses.map(r=>r.json()));
+    scenes={izba,glade};allItems={...izba.items,...glade.items};
+    artifacts=[...izbaContent.map(a=>({...a,scene:'izba'})),...gladeContent];
+    config={...izba,items:allItems};
     prepareSounds();
-    if(artifacts.length!==7||equipment.some(id=>!config.items[id]))throw Error('Неполный комплект данных.');
-    const paths=new Set([config.background.image,...config.layers.map(s=>s.image),...Object.values(config.items).flatMap(a=>[a.cardImage,...(a.treasuryImage?[a.treasuryImage]:[]),...a.hidden.map(s=>s.image),...a.worn.map(s=>s.image)])]);
+    if(artifacts.length!==18||equipment.some(id=>!config.items[id]))throw Error('Неполный комплект данных.');
+    const paths=new Set([...Object.values(scenes).flatMap(c=>[c.background.image,...c.layers.map(s=>s.image)]),...Object.values(config.items).flatMap(a=>[a.cardImage,...(a.treasuryImage?[a.treasuryImage]:[]),...(a.placed||[]).map(s=>s.image),...a.hidden.map(s=>s.image),...a.worn.map(s=>s.image)])]);
     await Promise.all([...paths].map(path=>new Promise((resolve,reject)=>{
       const image=new Image();image.onload=()=>{const c=document.createElement('canvas');c.width=image.naturalWidth;c.height=image.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const data=ctx.getImageData(0,0,c.width,c.height).data;const alpha=new Uint8Array(c.width*c.height);for(let i=0;i<alpha.length;i++)alpha[i]=data[i*4+3];images.set(path,{image,width:c.width,height:c.height,alpha});resolve();};
       image.onerror=()=>reject(Error('Не удалось загрузить изображение '+path));image.src=url(path);

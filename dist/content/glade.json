@@ -1,0 +1,178 @@
+[
+  {
+    "id": "sword",
+    "title": "Меч",
+    "scene": "glade",
+    "description": "Меч булатный/меч-кладенец/самосек — мечи, которые встречаются в богатырских историях. Булатный меч сделан из особой прочной стали — булата. Кладенец — необыкновенный богатырский меч, который помогает одолеть сильного врага. А самосек и вовсе волшебный: он способен сражаться сам!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Получение силы (Исцеление Ильи-сидня. Илья Муромец и Святогор)",
+      "excerpt": "Попробовал Илья Муромец поднять\nкрышку [гроба], да где ему! Говорит\nСвятогорбогатырь: «Возьми мой\nмеч-кладенец и ударь поперек\nкрышки». И лье Муромцу не\nпод-силу и поднять Святогорова\nмеча-кладенца.",
+      "sourceLabel": "www.booksite.ru",
+      "sourceUrl": "https://www.booksite.ru/fulltext/iliyamuromec/text.pdf",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Выбрать оружие"
+  },
+  {
+    "id": "spear",
+    "title": "Копьё",
+    "scene": "glade",
+    "description": "Копье — длинная деревянная рукоять с острым наконечником. Им сражались вблизи или метали в цель. Позволяет богатырю сражаться с врагом, сохраняя личное пространство.",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Илья Муромец и сын",
+      "excerpt": "Ише стала сама про то\nвыспрашивать:\n«Уж ты было ли, чадышко, на святой\nРуси?»\nОн ведь взял своё-то всё востро́\nкопьё,\nОн ведь матушки-то ударил всё ведь\nв белу грудь;\nИшше тут ведь она-то скоро́\nпреставилась.",
+      "sourceLabel": "feb-web.ru",
+      "sourceUrl": "http://feb-web.ru/feb/byliny/texts/byl/bil-090-.htm?cmd=p",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Выбрать оружие"
+  },
+  {
+    "id": "shield",
+    "title": "Щит",
+    "scene": "glade",
+    "description": "Щит дубовый — крепкий деревянный щит, которым воин прикрывался от вражеских ударов. Представь небольшую защитную стену, которую можно держать перед собой и носить с собой в бой.",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Илья Муромец и сын его»",
+      "excerpt": "На гнедом коне млада юношу.\nИз-за копья щита не видать его.",
+      "sourceLabel": "opac.nekrasovka.ru",
+      "sourceUrl": "https://opac.nekrasovka.ru/books/STORAGE/2024/C9800008300.pdf",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Взять"
+  },
+  {
+    "id": "horse",
+    "title": "Конь богатырский",
+    "scene": "glade",
+    "description": "Конь — верный друг и помощник богатыря. Он несёт всадника через поля и леса, помогает в бою и выручает из беды. В некоторых историях такой конь даже разговаривает и даёт хозяину советы.",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Три поездки Ильи Муромца",
+      "excerpt": "Добрый конь у старого да\nбогатырский,\nИ на добром коне ведь есть у старого\nседёлышко,\nЕсть седёлышко да богатырское,\nТо не для красы, братцы, и не для\nбасы, —\nРади крепости да богатырский, И что\nможно было сидеть да добру молодцу,\nБиться-ратиться добру молодцу да во\nчистом поли",
+      "sourceLabel": "drevne-rus-lit.niv.ru",
+      "sourceUrl": "https://drevne-rus-lit.niv.ru/drevne-rus-lit/sbornik-bylin-putilov/tri-poezdki-ili-muromca.htm",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": null
+  },
+  {
+    "id": "plough",
+    "title": "Соха",
+    "scene": "glade",
+    "description": "Сошка (соха) — главное орудие для вспахивания земли. Рыхлит землю перед посевом: лошадь тянет, человек направляет. Главное — не перепахать соседский огород!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Вольга и Микула Селянинович",
+      "excerpt": "Как орет в поле оратай,\nпосвистывает,\nА бороздочки он да помётывает,\nА пенье-коренья вывёртывает,\nА большие-то каменья в борозду\nвалит.\nУ оратая кобыла соловая,\nГужики у нее да шелковые,\nСошка у оратая кленовая,\nОмешики на сошке булатные,\nПрисошечек у сошки серебряный,\nА рогачик-то у сошки красна золота",
+      "sourceLabel": "nukadeti.ru",
+      "sourceUrl": "https://nukadeti.ru/skazki/volga-i-mikula-selyaninovich",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": null
+  },
+  {
+    "id": "rein",
+    "title": "Повод",
+    "scene": "glade",
+    "description": "Повод — ремень, соединённый с уздечкой: помогает всаднику направлять коня. Чтобы богатырь ехал к подвигам, а конь — не к ближайшей вкусной траве!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Илья Муромец и Калин-царь»",
+      "excerpt": "Он накинул поводья шелковые\nНа добра коня да богатырского\nДа спустил коня ко полотну ко\nбелому…",
+      "sourceLabel": "www.livelib.ru",
+      "sourceUrl": "https://www.livelib.ru/book/264508/read-byliny-bez-avtora/~7",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": null
+  },
+  {
+    "id": "sun",
+    "title": "Солнце",
+    "scene": "glade",
+    "description": "Солнце — освещает землю и согревает всё живое. Встаёт раньше богатырей, а за подвиги даже награды не просит!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Вольга и Микула»",
+      "excerpt": "Когда воссияло солнце красное\nНа тое ли на небушко на ясное,\nТогда зарождался молодой Вольга,\nМолодой Вольга Святославович.",
+      "sourceLabel": "feb-web.ru",
+      "sourceUrl": "https://feb-web.ru/feb/byliny/texts/rf1/rf1-0412.htm?cmd=p",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": null
+  },
+  {
+    "id": "sabre",
+    "title": "Сабля",
+    "scene": "glade",
+    "description": "Сабля — оружие с изогнутым клинком, удобное для конного боя. Выгнулась дугой — но вовсе не от испуга!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Алеша Попович и Тугарин»",
+      "excerpt": "И скоро Алёша наряжается,\nСадился на добра коня,\nВзял он сабельку острую\nИ поехал к Тугарину Змеевичу.",
+      "sourceLabel": "feb-web.ru",
+      "sourceUrl": "https://feb-web.ru/feb/byliny/texts/byl/bil-176-.htm?cmd=p",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Выбрать оружие"
+  },
+  {
+    "id": "mace",
+    "title": "Булава",
+    "scene": "glade",
+    "description": "Палица/булава — тяжёлое оружие для сильных рук. Палица похожа на могучую дубинку, а булава имеет тяжёлую головку. Поднять непросто, а уронить себе на ногу — совсем плохая идея!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Получение силы (Исцеление Ильи-сидня. Илья Муромец и Святогор)",
+      "excerpt": "Походит Илья на конюший двор,\nИмает Добрыня добра коня,\nУздает в уздечку тесмянную.\nСедлает в седелышко черкаское,\nВ торока вяжет палицу боевую,\nОна свесом та палица девяносто пуд",
+      "sourceLabel": "www.booksite.ru",
+      "sourceUrl": "https://www.booksite.ru/fulltext/iliyamuromec/text.pdf",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": "Выбрать оружие"
+  },
+  {
+    "id": "raspberry_1",
+    "title": "Малина",
+    "scene": "glade",
+    "description": "Две малины — сладкие лесные ягоды для маленького привала. Одну богатырю, другую… тоже богатырю)) А поделиться?",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Про Маринку»",
+      "excerpt": "У той бабки у горенки\nБыли две девушки-чернавушки,\nХодили они в зелен сад,\nВ зелен сад, чисто поле малинки\nбрать.",
+      "sourceLabel": "publicadomain.ru",
+      "sourceUrl": "https://publicadomain.ru/russkie-narodnye-byliny/pro-dobrynyu-nikiticha/pro-marinku",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": null
+  },
+  {
+    "id": "raspberry_2",
+    "title": "Малина",
+    "scene": "glade",
+    "description": "Две малины — сладкие лесные ягоды для маленького привала. Одну богатырю, другую… тоже богатырю)) А поделиться?",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Про Маринку»",
+      "excerpt": "У той бабки у горенки\nБыли две девушки-чернавушки,\nХодили они в зелен сад,\nВ зелен сад, чисто поле малинки\nбрать.",
+      "sourceLabel": "publicadomain.ru",
+      "sourceUrl": "https://publicadomain.ru/russkie-narodnye-byliny/pro-dobrynyu-nikiticha/pro-marinku",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    },
+    "actionLabel": null
+  }
+]

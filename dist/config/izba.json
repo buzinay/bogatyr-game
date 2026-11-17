@@ -4,6 +4,7 @@
     "height": 1200
   },
   "mobileDetailWidth": 800,
+  "effects": {"success": {"sound": "assets/audio/mixkit-fast-small-sweep-transition-166.wav", "volume": 0.35}},
   "background": {
     "image": "assets/izba-background.png",
     "x": 0,
@@ -188,6 +189,7 @@
       "treasuryImage": "assets/boots-card.png"
     },
     "gusli": {
+      "placed": [{"image":"assets/gusli-upright.png","x":1182,"y":605,"width":120,"height":209,"z":38}],
       "hidden": [
         {
           "image": "assets/gusli-hidden.png",
@@ -204,6 +206,7 @@
       "treasuryImage": "assets/gusli-card.png"
     },
     "cup": {
+      "placed": [{"image":"assets/cup-upright.png","x":1168,"y":389,"width":80,"height":122,"z":38}],
       "hidden": [
         {
           "image": "assets/cup-hidden.png",

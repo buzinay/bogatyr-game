@@ -1,0 +1,451 @@
+[
+  {
+    "image": "assets/glade/background.png",
+    "x": 0,
+    "y": 0,
+    "width": 1600,
+    "height": 1200,
+    "z": 0,
+    "source": "Поляна\\Поляна_фон.png"
+  },
+  {
+    "image": "assets/glade/hero-base.png",
+    "x": 264,
+    "y": 53,
+    "width": 567,
+    "height": 1125,
+    "z": 40,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 40,
+    "layerName": "Богатырь Одетый"
+  },
+  {
+    "image": "assets/glade/terrain-front.png",
+    "x": 0,
+    "y": 0,
+    "width": 1363,
+    "height": 1027,
+    "z": 15,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 4,
+    "layerName": "Layer 44"
+  },
+  {
+    "image": "assets/glade/branch-front.png",
+    "x": 1376,
+    "y": 0,
+    "width": 180,
+    "height": 122,
+    "z": 25,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 9,
+    "layerName": "Inserted Image"
+  },
+  {
+    "image": "assets/glade/house-front.png",
+    "x": 1081,
+    "y": 425,
+    "width": 519,
+    "height": 482,
+    "z": 25,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 14,
+    "layerName": "From selection"
+  },
+  {
+    "image": "assets/glade/tree-front.png",
+    "x": 0,
+    "y": 590,
+    "width": 118,
+    "height": 265,
+    "z": 25,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 18,
+    "layerName": "Inserted Image"
+  },
+  {
+    "image": "assets/glade/bush-right.png",
+    "x": 1258,
+    "y": 874,
+    "width": 342,
+    "height": 326,
+    "z": 35,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 20,
+    "layerName": "Куст Правый"
+  },
+  {
+    "image": "assets/glade/bush-left.png",
+    "x": 0,
+    "y": 860,
+    "width": 349,
+    "height": 340,
+    "z": 35,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 64,
+    "layerName": "Куст Левый"
+  },
+  {
+    "image": "assets/glade/sword-hidden.png",
+    "x": 9,
+    "y": 823,
+    "width": 148,
+    "height": 377,
+    "z": 30,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 21,
+    "layerName": "Меч Спрятанный"
+  },
+  {
+    "image": "assets/glade/sword-card.png",
+    "x": 73,
+    "y": 38,
+    "width": 141,
+    "height": 420,
+    "z": 0,
+    "source": "Поляна\\Меч карточка.png"
+  },
+  {
+    "image": "assets/glade/spear-hidden.png",
+    "x": 1258,
+    "y": 270,
+    "width": 306,
+    "height": 604,
+    "z": 20,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 6,
+    "layerName": "Копье Спрятанное"
+  },
+  {
+    "image": "assets/glade/spear-card.png",
+    "x": 149,
+    "y": 49,
+    "width": 62,
+    "height": 1065,
+    "z": 0,
+    "source": "Поляна\\Копье карточка.png"
+  },
+  {
+    "image": "assets/glade/shield-hidden.png",
+    "x": 722,
+    "y": 1116,
+    "width": 350,
+    "height": 84,
+    "z": 30,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 32,
+    "layerName": "Щит Спрятанный"
+  },
+  {
+    "image": "assets/glade/shield-card.png",
+    "x": 107,
+    "y": 36,
+    "width": 273,
+    "height": 414,
+    "z": 0,
+    "source": "Поляна\\Щит карточка.png"
+  },
+  {
+    "image": "assets/glade/horse-hidden.png",
+    "x": 787,
+    "y": 735,
+    "width": 392,
+    "height": 265,
+    "z": 28,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 27,
+    "layerName": "Лошадь"
+  },
+  {
+    "image": "assets/glade/horse-card.png",
+    "x": 91,
+    "y": 69,
+    "width": 942,
+    "height": 949,
+    "z": 0,
+    "source": "Поляна\\Конь_большой карточка.png"
+  },
+  {
+    "image": "assets/glade/plough-hidden.png",
+    "x": 824,
+    "y": 702,
+    "width": 544,
+    "height": 309,
+    "z": 29,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 29,
+    "layerName": "Соха Одетая"
+  },
+  {
+    "image": "assets/glade/plough-card.png",
+    "x": 21,
+    "y": 55,
+    "width": 544,
+    "height": 309,
+    "z": 0,
+    "source": "Поляна\\Соха карточка.png"
+  },
+  {
+    "image": "assets/glade/rein-hidden.png",
+    "x": 1326,
+    "y": 80,
+    "width": 129,
+    "height": 151,
+    "z": 20,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 8,
+    "layerName": "Повод Спрятанный"
+  },
+  {
+    "image": "assets/glade/rein-card.png",
+    "x": 14,
+    "y": 7,
+    "width": 125,
+    "height": 150,
+    "z": 0,
+    "source": "Поляна\\Повод карточка.png"
+  },
+  {
+    "image": "assets/glade/sun-hidden.png",
+    "x": 953,
+    "y": 471,
+    "width": 157,
+    "height": 157,
+    "z": 10,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 2,
+    "layerName": "Солнце Спрятанное"
+  },
+  {
+    "image": "assets/glade/sun-card.png",
+    "x": 18,
+    "y": 22,
+    "width": 157,
+    "height": 157,
+    "z": 0,
+    "source": "Поляна\\Солнце карточка.png"
+  },
+  {
+    "image": "assets/glade/sabre-hidden.png",
+    "x": 0,
+    "y": 695,
+    "width": 203,
+    "height": 79,
+    "z": 20,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 17,
+    "layerName": "Сабля"
+  },
+  {
+    "image": "assets/glade/sabre-card.png",
+    "x": 103,
+    "y": 27,
+    "width": 98,
+    "height": 382,
+    "z": 0,
+    "source": "Богатырь исходные картинки\\Сабля карточка.png"
+  },
+  {
+    "image": "assets/glade/mace-hidden.png",
+    "x": 1258,
+    "y": 1049,
+    "width": 342,
+    "height": 123,
+    "z": 30,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 19,
+    "layerName": "Булава Спрятанная"
+  },
+  {
+    "image": "assets/glade/mace-card.png",
+    "x": 134,
+    "y": 44,
+    "width": 124,
+    "height": 365,
+    "z": 0,
+    "source": "Поляна\\Булава карточка.png"
+  },
+  {
+    "image": "assets/glade/raspberry_1-hidden.png",
+    "x": 222,
+    "y": 307,
+    "width": 66,
+    "height": 80,
+    "z": 30,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 24,
+    "layerName": "Малина Правая Спрятанная"
+  },
+  {
+    "image": "assets/glade/raspberry_1-card.png",
+    "x": 34,
+    "y": 24,
+    "width": 70,
+    "height": 84,
+    "z": 0,
+    "source": "Поляна\\Малина карточка.png"
+  },
+  {
+    "image": "assets/glade/raspberry_2-hidden.png",
+    "x": 1334,
+    "y": 748,
+    "width": 54,
+    "height": 42,
+    "z": 30,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 25,
+    "layerName": "Малина Левая Спрятанная"
+  },
+  {
+    "image": "assets/glade/raspberry_2-card.png",
+    "x": 34,
+    "y": 24,
+    "width": 70,
+    "height": 84,
+    "z": 0,
+    "source": "Поляна\\Малина карточка.png"
+  },
+  {
+    "image": "assets/glade/sabre-worn.png",
+    "x": 754,
+    "y": 174,
+    "width": 99,
+    "height": 384,
+    "z": 39,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 50,
+    "layerName": "Сабля"
+  },
+  {
+    "image": "assets/glade/mace-worn.png",
+    "x": 226,
+    "y": 608,
+    "width": 124,
+    "height": 365,
+    "z": 39,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 53,
+    "layerName": "Булава Снятая"
+  },
+  {
+    "image": "assets/glade/shield-back.png",
+    "x": 623,
+    "y": 265,
+    "width": 256,
+    "height": 419,
+    "z": 39,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 39,
+    "layerName": "Слой 47"
+  },
+  {
+    "image": "assets/glade/shield-handles.png",
+    "x": 677,
+    "y": 411,
+    "width": 92,
+    "height": 111,
+    "z": 41,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 45,
+    "layerName": "Ручки Щита"
+  },
+  {
+    "image": "assets/glade/raspberry_1-placed.png",
+    "x": 87,
+    "y": 1032,
+    "width": 70,
+    "height": 84,
+    "z": 36,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 65,
+    "layerName": "Малина Левая"
+  },
+  {
+    "image": "assets/glade/raspberry_2-placed.png",
+    "x": 1442,
+    "y": 1027,
+    "width": 70,
+    "height": 84,
+    "z": 36,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 23,
+    "layerName": "Малина Правая"
+  },
+  {
+    "image": "assets/glade/sun-placed.png",
+    "x": 1091,
+    "y": 171,
+    "width": 144,
+    "height": 144,
+    "z": 36,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 46,
+    "layerName": "Layer 46"
+  },
+  {
+    "image": "assets/glade/plough-placed.png",
+    "x": 723,
+    "y": 810,
+    "width": 532,
+    "height": 197,
+    "z": 36,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 22,
+    "layerName": "Соха Снятая"
+  },
+  {
+    "image": "assets/glade/horse-placed.png",
+    "x": 139,
+    "y": 141,
+    "width": 942,
+    "height": 949,
+    "z": 37,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 37,
+    "layerName": "Лошадь Большая"
+  },
+  {
+    "image": "assets/glade/rein-placed.png",
+    "x": 704,
+    "y": 351,
+    "width": 326,
+    "height": 220,
+    "z": 38,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 38,
+    "layerName": "Повод Большой"
+  },
+  {
+    "image": "assets/glade/sword-sheath.png",
+    "x": 404,
+    "y": 332,
+    "width": 136,
+    "height": 446,
+    "z": 41,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 41,
+    "layerName": "Ножны"
+  },
+  {
+    "image": "assets/glade/sword-worn.png",
+    "x": 277,
+    "y": 602,
+    "width": 423,
+    "height": 148,
+    "z": 42,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 44,
+    "layerName": "Меч В Руке"
+  },
+  {
+    "image": "assets/glade/spear-worn.png",
+    "x": 769,
+    "y": 100,
+    "width": 62,
+    "height": 1065,
+    "z": 42,
+    "source": "Поляна/Поляна_собери богатыря.psd",
+    "layerIndex": 62,
+    "layerName": "Копье В Руке"
+  }
+]

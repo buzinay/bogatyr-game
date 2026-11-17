@@ -5,7 +5,7 @@ const {chromium}=require(process.env.USERPROFILE+'/.cache/codex-runtimes/codex-p
  server=spawn(process.execPath,['tools/serve.cjs'],{env:{...process.env,BOGATYR_PORT:'4194'},windowsHide:true});await new Promise(r=>server.stdout.once('data',r));
  browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
  const page=await browser.newPage();await page.goto('http://127.0.0.1:4194/');
- const configPath=path.resolve('dist/config/izba.json'),config=JSON.parse(fs.readFileSync(configPath));
+ const configPath=path.resolve('dist/config/'+(process.argv[2]||'izba')+'.json'),config=JSON.parse(fs.readFileSync(configPath));
  for(const [id,item]of Object.entries(config.items)){
   if(!item.sound||item.sound.endsWith('-short.wav'))continue;
   const pcm=await page.evaluate(async file=>{

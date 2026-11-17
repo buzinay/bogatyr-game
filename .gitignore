@@ -24,6 +24,7 @@ yarn-error.log*
 
 # Generated local archive
 /bogatyr-izba-v1.zip
+/bogatyr-glade-v1.zip
 
 # Generated QA screenshots and result snapshots
 /qa/*.png
@@ -31,6 +32,7 @@ yarn-error.log*
 /qa/*.jpeg
 /qa/*.webp
 /qa/results.json
+/qa/glade-layers/
 
 # Temporary files
 *.tmp
