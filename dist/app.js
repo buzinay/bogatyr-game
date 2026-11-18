@@ -347,7 +347,7 @@ function renderGladeStatus(){
   }else box.append(el('p','','Доспехи на мне, а сборы ещё не закончены. Нужно выбрать оружие и подготовить коня. Осмотрись внимательно: на поляне найдутся вещи и для ратного дела, и для мирного труда'));
   if(has('horse')&&has('rein'))box.append(el('p','horse-ready','✓ Конь готов к дороге'));
   if(weapons.some(has)){
-    box.append(el('p','','Сабля, меч, булава или копьё? Выбери, что богатырь возьмёт в этот поход'));
+    box.append(el('p','','Сабля, меч, булава или копьё? Выбери, что богатырь возьмёт в этот поход. Из Леса можно вернуться на Поляну через «Меню» и сменить оружие.'));
     const choices=el('div','weapon-choices');
     for(const id of weapons){const a=artifacts.find(a=>a.id===id),b=button(a.title+(state.weaponChoice===id?' ✓':''),()=>openCard(id));b.disabled=!has(id);b.setAttribute('aria-pressed',String(state.weaponChoice===id));choices.append(b);}
     box.append(choices);
