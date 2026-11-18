@@ -4,7 +4,9 @@ const style = document.createElement('link');
 style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=intro-1', import.meta.url).href;
 root.append(style);
 const mount = document.createElement('div');
-mount.className='loading'; mount.textContent='Загружаем игру…'; root.append(mount);
+const loadingSlot = document.createElement('slot');
+mount.hidden=true;
+root.append(loadingSlot,mount);
 const KEY='bogatyr-game:izba:v1';
 const BUILD='fireplace-1';
 const sceneLabels={
@@ -735,5 +737,10 @@ async function load(){
     }));
     buildShell(saved);setScreen('start');
   }catch(error){mount.className='error';mount.replaceChildren(el('h2','','Не удалось открыть избу'),el('p','','Проверь подключение и наличие файлов игры. Затем попробуй ещё раз.'),el('small','',error.message),button('Повторить',()=>location.reload(),'primary'));}
+  finally{
+    host.querySelector('.game-loading')?.remove();
+    loadingSlot.remove();
+    mount.hidden=false;
+  }
 }
 load();

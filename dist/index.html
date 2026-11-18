@@ -6,12 +6,44 @@
   <meta name="theme-color" content="#f5eddd">
   <meta name="description" content="Собери богатыря в поход, выбери оружие на поляне и познакомься с обитателями леса.">
   <title>Богатырский поход</title>
+  <style>
+    #bogatyr-game > .game-loading {
+      box-sizing: border-box;
+      min-height: 100vh;
+      min-height: 100svh;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      padding: 24px;
+      text-align: center;
+      color: #34291f;
+      background: radial-gradient(ellipse at center, #fff8e5, #f5eddd 65%);
+    }
+    #bogatyr-game > .game-loading img {
+      width: clamp(100px, 22vw, 160px);
+      height: auto;
+      transform-origin: center;
+      animation: game-loading-sun 2s linear infinite;
+    }
+    #bogatyr-game > .game-loading p { margin: 6px 0 0; font: 15px/1.5 system-ui, sans-serif; }
+    #bogatyr-game > .game-loading .game-loading-title { margin-top: 16px; font: 600 clamp(24px, 5vw, 36px)/1.2 Georgia, serif; }
+    @keyframes game-loading-sun { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) { #bogatyr-game > .game-loading img { animation: none; } }
+  </style>
+  <noscript><style>#bogatyr-game > .game-loading { display: none; }</style></noscript>
+  <link rel="preload" as="image" href="./assets/intro/loading-sun.png" fetchpriority="high">
   <link rel="preload" as="image" href="./assets/intro/fireplace.webp">
   <link rel="preload" as="image" href="./assets/intro/hero.webp">
 </head>
 <body style="margin:0;background:#f5eddd">
-  <main id="bogatyr-game"><p style="padding:24px;font:18px sans-serif">Загружаем игру…</p></main>
+  <main id="bogatyr-game">
+    <div class="game-loading" role="status">
+      <img src="./assets/intro/loading-sun.png" width="200" height="200" alt="">
+      <p class="game-loading-title">Богатырский поход</p>
+      <p>Загружаем игру…</p>
+    </div>
+  </main>
   <noscript>Для игры включите JavaScript в настройках браузера.</noscript>
-  <script type="module" src="./app.js?v=intro-1"></script>
+  <script type="module" src="./app.js?v=intro-2"></script>
 </body>
 </html>
