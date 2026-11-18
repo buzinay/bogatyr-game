@@ -1,0 +1,26 @@
+@font-face{
+  font-family:Lora;
+  src:url('./assets/fonts/Lora.ttf') format('truetype');
+  font-weight:400 600;
+  font-display:swap;
+}
+@font-face{
+  font-family:'Golos Text';
+  src:url('./assets/fonts/GolosText.ttf') format('truetype');
+  font-weight:400 900;
+  font-display:swap;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#f5eddd;color:#34291f;font:16px/1.55 'Golos Text',system-ui,sans-serif}
+.rules{max-width:690px;margin:auto;padding:20px clamp(15px,5vw,36px) 32px}
+.rules-back{display:inline-flex;align-items:center;min-height:44px;color:#79301f;text-underline-offset:4px;font-weight:600}
+.rules-back:focus-visible{outline:3px solid #176677;outline-offset:4px}
+h1,h2{font-family:Lora,Georgia,serif;font-weight:600}
+h1{font-size:clamp(31px,6vw,50px);line-height:1.12;margin:10px 0 12px}
+.rules-goal{margin:0 0 20px;font-size:17px}
+h2{font-size:clamp(18px,3.5vw,22px);line-height:1.25;margin:0 0 5px}
+ol{list-style:none;margin:0;padding:0;counter-reset:rule}
+li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;border-top:1px solid #d8c7a9;padding:13px 0;counter-increment:rule}
+li::before{content:counter(rule);height:28px;display:grid;place-items:center;background:#ead9bf;color:#79301f;border-radius:50%;font-weight:600}
+p{margin:0}
+.rules-tip{padding:12px 15px;background:#fffaf0;border:1px solid #d8c7a9;border-radius:8px;margin-top:9px}

@@ -1,7 +1,7 @@
 const host = document.getElementById('bogatyr-game');
 const root = host.attachShadow({mode:'open'});
 const style = document.createElement('link');
-style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=fireplace-2', import.meta.url).href;
+style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=intro-1', import.meta.url).href;
 root.append(style);
 const mount = document.createElement('div');
 mount.className='loading'; mount.textContent='Загружаем игру…'; root.append(mount);
@@ -206,8 +206,19 @@ function buildShell(saved){
   mount.className='app';
   mount.innerHTML=`
     <div id="storage-note" class="notice" hidden></div>
-    <section id="start"><div class="intro"><div class="intro-copy"><div class="eyebrow">Глава 1 · СОБИРАЕМСЯ В ДОРОГУ</div><h2>Большой поход<br>начинается дома</h2><p>В этом камине спрятался целый былинный мир! Помоги богатырю собраться в дорогу, найди удивительные предметы и познакомься с обитателями леса. Все находки пригодятся, чтобы раскрыть тайну камина.</p><div class="intro-actions" id="start-actions"></div><p class="no-audio">Первая сцена · 7 находок · без спешки</p><p id="save-message" class="notice" hidden></p><p class="no-audio">Наведи курсор или нажми на предмет, чтобы услышать его звук.</p></div><div class="intro-art" aria-hidden="true"><img class="room" alt=""><img class="hero" alt=""></div></div></section>
-    <section id="game" hidden aria-label="Сцена Изба"><div class="scene-head"><div class="scene-title"><span class="chapter">1</span><div><h2 id="scene-title">Изба</h2><p class="task">Найди 7 предметов и одень богатыря</p></div></div><div class="count" id="count" aria-live="polite"></div></div>
+    <section id="start" aria-labelledby="intro-title"><div class="intro">
+      <div class="intro-copy"><h1 id="intro-title">Собери богатыря в поход</h1>
+        <p>В этом камине спрятался целый былинный мир! Помоги богатырю собраться в дорогу, найди удивительные предметы и познакомься с обитателями леса. Все находки пригодятся, чтобы раскрыть тайну камина.</p>
+        <div class="intro-actions" id="start-actions"></div>
+        <a class="intro-rules" href="${new URL('./rules.html',import.meta.url).href}">Правила игры</a>
+        <p id="save-message" class="notice" hidden></p>
+      </div>
+      <div class="intro-art" role="img" aria-label="Богатырь в дорожной рубашке рядом с камином Врубеля">
+        <img class="intro-fireplace" src="${new URL('./assets/intro/fireplace.webp',import.meta.url).href}" width="1280" height="1022" alt="">
+        <img class="intro-hero" src="${new URL('./assets/intro/hero.webp',import.meta.url).href}" width="403" height="1100" alt="">
+      </div>
+    </div></section>
+    <section id="game" hidden aria-label="Сцена Изба"><div class="scene-head"><div class="scene-title"><div><h2 id="scene-title">Изба</h2><p class="task">Найди 7 предметов и одень богатыря</p></div></div><div class="count" id="count" aria-live="polite"></div></div>
       <div class="toolbar"><button id="treasury-toggle" aria-controls="treasury" aria-expanded="false">Сокровищница · 0</button><button id="hint">Подсказка</button><span class="spacer"></span><button id="zoom-toggle">Крупнее</button><button id="sound" disabled title="Аудиофайлы ещё не добавлены">Звук: нет файлов</button><button id="speech-toggle">Реплика</button><button id="menu">Меню</button></div>
       <div id="puzzle-message" class="puzzle-message" hidden><strong id="puzzle-selection"></strong><p id="puzzle-feedback" role="status"></p></div>
       <div class="game-layout"><div class="field"><div class="viewport" id="viewport" tabindex="0" aria-label="Игровое поле"><div class="surface"><div class="stage" id="stage"><div id="sprites"></div><svg class="hits" viewBox="0 0 1600 1200" id="hits" role="group" aria-label="Предметы в избе"></svg></div></div></div>
@@ -219,8 +230,6 @@ function buildShell(saved){
     <dialog id="card" aria-labelledby="card-title"><header class="dialog-head"><h2 id="card-title"></h2><button class="close" id="card-x" aria-label="Закрыть карточку">×</button></header><div class="dialog-body"><img class="card-picture" id="card-image" alt=""><p id="description"></p><button id="read-more" aria-expanded="false" aria-controls="reading">Читать ещё</button><div class="reading" id="reading" hidden><h3 id="reading-title"></h3><blockquote id="excerpt"></blockquote><small id="source-label"></small><br><a id="source" target="_blank" rel="noopener noreferrer">Открыть источник ↗</a></div><p class="card-note" id="card-note"></p></div><footer class="dialog-foot"><button id="equip" class="primary"></button><button id="card-close">Закрыть</button></footer></dialog>
     <dialog id="menu-dialog" aria-labelledby="menu-title"><header class="dialog-head"><h2 id="menu-title">Меню похода</h2><button class="close" id="menu-x" aria-label="Закрыть меню">×</button></header><div class="dialog-body menu-actions"><p>Ищем семь предметов в избе. Найденные вещи ждут в Сокровищнице.</p><button id="resume">Вернуться в избу</button><button id="restart">Начать заново</button><small>Прогресс сохраняется в этом браузере. На другом устройстве он не появится.</small></div></dialog>
     <dialog id="reset-dialog" aria-labelledby="reset-title"><header class="dialog-head"><h2 id="reset-title">Начать новый поход?</h2></header><div class="dialog-body"><p>Находки, снаряжение и найденные детали камина будут сброшены.</p></div><footer class="dialog-foot"><button id="cancel-reset">Остаться в игре</button><button id="confirm-reset" class="primary">Да, начать заново</button></footer></dialog>`;
-  $('.intro-art .room').src=url(config.background.image);$('.intro-art .hero').src=url(config.layers.find(s=>s.image.includes('hero-base')).image);
-  $('.no-audio').textContent='Изба, Поляна и Лес · 27 находок';
   $('#start-actions').append(button('Начать поход',()=>{if(saved){askReset();}else{state=fresh();enterScene('izba');}},'primary'));
   if(saved)$('#start-actions').prepend(button('Продолжить',()=>{if(inPuzzle())enterPuzzle();else enterScene(state.screen);},'primary'));
   if(saveNotice){$('#save-message').hidden=false;$('#save-message').textContent=saveNotice;}
