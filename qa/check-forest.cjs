@@ -1,5 +1,6 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const {traceAudio}=require('./audio-probe.cjs');
 const {spawn}=require('node:child_process');
 const {chromium}=require(process.env.USERPROFILE+'/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const ids=scene=>JSON.parse(fs.readFileSync('dist/content/'+scene+'.json')).map(a=>a.id);
@@ -40,7 +41,7 @@ async function targetPoint(page,id){
       for(let x=Math.max(2,box.x+2);x<Math.min(1598,box.x+box.width-2);x+=3){
         const px=rect.left+x*scale,py=rect.top+y*scale;
         if(pixels[(Math.floor(y)*1600+Math.floor(x))*4+3]<=160)continue;
-        if(!root.elementFromPoint(px,py)?.matches('.target'))continue;
+        if(root.elementFromPoint(px,py)!==path)continue;
         let score=0;
         for(const dy of [-6,0,6])for(const dx of [-6,0,6]){
           if(pixels[(Math.floor(y+dy)*1600+Math.floor(x+dx))*4+3]>160)score++;
@@ -61,14 +62,7 @@ async function run(browser,width,height,weapon,legacyComplete){
   const errors=[];
   page.on('pageerror',error=>errors.push(String(error)));
   page.on('response',response=>{if(response.status()>=400)errors.push(response.status()+' '+response.url());});
-  await page.addInitScript(()=>{
-    window.played=[];
-    const play=HTMLMediaElement.prototype.play;
-    HTMLMediaElement.prototype.play=function(){
-      window.played.push(this.src.split('/').pop().split('?')[0]);
-      return play.call(this);
-    };
-  });
+  await traceAudio(page);
   await page.goto(appUrl);
   await page.getByRole('button',{name:'Начать поход',exact:true}).waitFor();
   const save={schemaVersion:2,screen:legacyComplete?'complete':'glade',weaponLocked:legacyComplete,
@@ -122,13 +116,14 @@ async function run(browser,width,height,weapon,legacyComplete){
     if(touch)await page.touchscreen.tap(point.x,point.y);
     else await page.mouse.click(point.x,point.y);
     await page.locator('#card').waitFor({timeout:2500});
-    assert.ok((await page.locator('#card-image').getAttribute('src')).includes('/'+(id==='nightingale'?'nightingale-revealed':id+'-card')+'.png'));
+    assert.ok((await page.locator('#card-image').getAttribute('src')).includes('/'+(id==='nightingale'?'nightingale-revealed':id+'-card')+'.png'),
+      `Expected ${id} at ${width}, got ${await page.locator('#card-title').innerText()}`);
     assert.equal(await page.locator('#count').innerText(),`Найдено: ${index+1}/9`);
     assert.match(await page.locator('[data-artifact="'+id+'"]').getAttribute('src'),id==='oak'?/oak-front\.png/ : /-hidden\.png/);
     assert.equal(await page.locator('.found-mark').count(),index);
     if(index===0){
       assert.match(await page.locator('#card-note').innerText(),/Запомним, кого встретили/);
-      assert.equal(await page.evaluate(()=>window.played.at(-1)),'tugarin-short.wav');
+      await page.waitForFunction(()=>window.played.at(-1)==='tugarin-short.wav');
       assert.equal(await page.evaluate(()=>window.played.some(name=>name.endsWith('166.wav'))),false);
       await page.locator('#read-more').click();
       await page.locator('#excerpt').waitFor();
@@ -147,7 +142,7 @@ async function run(browser,width,height,weapon,legacyComplete){
       assert.equal(await page.locator('#count').innerText(),`Найдено: ${index+1}/9`);
     }
     if(index===0){
-      assert.equal(await page.evaluate(()=>window.played.filter(name=>name.endsWith('166.wav')).length),1);
+      await page.waitForFunction(()=>window.played.filter(name=>name.endsWith('166.wav')).length===1);
       await page.locator('#sound').click();
     }
   }
@@ -155,10 +150,12 @@ async function run(browser,width,height,weapon,legacyComplete){
   assert.equal(await page.evaluate(()=>window.played.filter(name=>name.endsWith('166.wav')).length),1);
   await page.screenshot({path:`qa/forest-complete-${width}-${weapon}.png`});
   await page.getByRole('button',{name:'Раскрыть тайну камина',exact:true}).click();
-  await page.getByRole('heading',{name:'Лес пройден',exact:true}).waitFor();
+  await page.getByRole('heading',{name:'Камин-пазл',exact:true}).waitFor();
   await page.reload();
   await page.getByRole('button',{name:'Продолжить',exact:true}).click();
-  await page.getByRole('button',{name:'Вернуться в лес',exact:true}).click();
+  await page.getByRole('heading',{name:'Камин-пазл',exact:true}).waitFor();
+  await page.locator('#menu').click();
+  await page.locator('#menu-forest').click();
   assert.equal(await page.locator('#count').innerText(),'Найдено: 9/9');
   await page.locator('#treasury-toggle').click();
   assert.equal(await page.locator('.treasure').count(),27);

@@ -23,3 +23,29 @@ dialog{font:17px/1.5 Arial,sans-serif;color:var(--ink);border:1px solid var(--li
 @font-face{font-family:Lora;src:url('./assets/fonts/Lora.ttf') format('truetype');font-weight:400 600;font-style:normal;font-display:swap}
 @font-face{font-family:'Golos Text';src:url('./assets/fonts/GolosText.ttf') format('truetype');font-weight:400 900;font-style:normal;font-display:swap}
 :host,dialog{font-family:'Golos Text',system-ui,sans-serif}h1,h2,h3,.reading blockquote{font-family:Lora,Georgia,serif}.found-mark{font-family:'Golos Text',system-ui,sans-serif}#zoom-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px}#zoom-toggle svg{flex:none}.treasure img{height:120px}
+#game[data-scene="puzzle"] .viewport,#game[data-scene="puzzle"] .stage{background:#eee1ca}
+#game[data-scene="puzzle"] .task{max-width:64ch;text-wrap:pretty}
+#game[data-scene="puzzle"] .count{white-space:normal;text-align:right}
+.puzzle-photo,.puzzle-grid{position:absolute;inset:0;width:100%;height:100%;user-select:none;pointer-events:none}
+.puzzle-grid{filter:drop-shadow(0 0 .65px #170e08);opacity:.87}
+.puzzle-piece{pointer-events:all;cursor:pointer;fill:transparent;stroke:#ffda97bc;stroke-width:1.25;vector-effect:non-scaling-stroke;outline:none}
+.puzzle-piece:hover,.puzzle-piece:focus-visible{fill:#ffe7b83b;stroke:#fff5cf;stroke-width:2}
+.puzzle-piece.matched{fill:#35824c70;stroke:#dbffd7}
+.puzzle-piece.hinted{fill:#ffe04b70;stroke:#fff1a0;stroke-width:3;filter:drop-shadow(0 0 2px #514117)}
+.puzzle-mark{font:700 17px 'Golos Text',sans-serif;fill:#fff;stroke:#244d30;stroke-width:4;paint-order:stroke;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.puzzle-message{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin:0 0 8px;padding:5px 9px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:14px}
+.puzzle-message p{margin:0}.puzzle-message p:empty{display:none}
+.puzzle-side{display:none;background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:auto;padding:12px}
+.puzzle-side h3{font-size:20px;margin:0 0 10px}
+.puzzle-list,#treasury-grid.puzzle-list{display:grid;grid-template-columns:1fr;gap:6px}
+.puzzle-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;min-width:0}
+.puzzle-choose,.puzzle-inspect{font-size:12px;padding:4px 7px}
+.puzzle-choose{display:flex;align-items:center;text-align:left;gap:6px}
+.puzzle-choose img{width:30px;height:32px;object-fit:contain;flex:none}
+.puzzle-choose[aria-pressed="true"]{border-color:#973b28;background:#f4ddc8}
+.puzzle-choose:disabled{opacity:1;background:#e8efdb;color:#345641}
+.puzzle-check{margin-left:auto}
+@media(min-width:960px){
+  #game[data-scene="puzzle"] .game-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:10px;align-items:start}
+  #game[data-scene="puzzle"] .puzzle-side{display:block}
+}

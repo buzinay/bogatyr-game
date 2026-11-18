@@ -4,7 +4,7 @@ const {spawn}=require('node:child_process');
 s=spawn(process.execPath,['tools/serve.cjs'],{env:{...process.env,BOGATYR_PORT:'4196'},windowsHide:true});await new Promise(r=>s.stdout.once('data',r));
 b=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
 for(const width of [390,1366]){
-const p=await b.newPage({viewport:{width,height:844}});await p.addInitScript(()=>{window.sweeps=0;const play=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){if(this.src.includes('166.wav')){window.sweeps++;window.sweepVolume=this.volume;}return play.call(this);};});
+const p=await b.newPage({viewport:{width,height:844}});await p.addInitScript(()=>{window.AudioContext=window.webkitAudioContext=undefined;window.sweeps=0;const play=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){if(this.src.includes('166.wav')){window.sweeps++;window.sweepVolume=this.volume;}return play.call(this);};});
 await p.goto('http://127.0.0.1:4196/');await p.getByRole('button',{name:'Начать поход',exact:true}).click();await p.locator('#speech-close').click();
 const open=async id=>{await p.locator(`.target[data-id="${id}"]`).focus();await p.keyboard.press('Enter');await p.locator('#card').waitFor({state:'visible'});};
 const close=async()=>{await p.locator('#card-close').click();await p.waitForTimeout(80);};
