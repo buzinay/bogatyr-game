@@ -1,7 +1,7 @@
 const host = document.getElementById('bogatyr-game');
 const root = host.attachShadow({mode:'open'});
 const style = document.createElement('link');
-style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=intro-1', import.meta.url).href;
+style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=finale-1', import.meta.url).href;
 root.append(style);
 const mount = document.createElement('div');
 const loadingSlot = document.createElement('slot');
@@ -30,7 +30,7 @@ const images = new Map();
 const $=s=>root.querySelector(s);
 const el=(tag,cls,text)=>{const n=document.createElement(tag); if(cls)n.className=cls; if(text!==undefined)n.textContent=text; return n;};
 const url=path=>{const u=new URL(path,import.meta.url);u.searchParams.set('v',BUILD);return u.href;};
-const fresh=()=>({schemaVersion:4,foundIds:[],equippedIds:[],screen:'izba',soundEnabled:true,weaponChoice:null,matches:{},puzzleRevealed:false});
+const fresh=()=>({schemaVersion:4,foundIds:[],equippedIds:[],screen:'izba',soundEnabled:true,weaponChoice:null,matches:{},puzzleRevealed:false,journeyFinished:false});
 const has=id=>state.foundIds.includes(id);
 const worn=id=>state.equippedIds.includes(id);
 const carried=id=>worn(id)||state.weaponChoice===id;
@@ -81,7 +81,7 @@ function readSave(){
     if(![1,2,3,4].includes(data.schemaVersion)||!Array.isArray(data.foundIds)||!Array.isArray(data.equippedIds)||
       new Set(data.foundIds).size!==data.foundIds.length||new Set(data.equippedIds).size!==data.equippedIds.length||
       data.foundIds.some(id=>!ids.includes(id))||data.equippedIds.some(id=>![...equipment,'shield'].includes(id)||!data.foundIds.includes(id))||
-      !['izba','glade','forest','complete','puzzle'].includes(data.screen)||typeof data.soundEnabled!=='boolean')throw Error('invalid');
+      !['izba','glade','forest','complete','puzzle','ending'].includes(data.screen)||typeof data.soundEnabled!=='boolean')throw Error('invalid');
     if(data.schemaVersion===1){data.screen='izba';data.weaponChoice=null;}
     if(data.weaponChoice!==null&&(!weapons.includes(data.weaponChoice)||!data.foundIds.includes(data.weaponChoice)))throw Error('invalid');
     const izbaIDs=artifacts.filter(a=>a.scene==='izba').map(a=>a.id);
@@ -89,7 +89,7 @@ function readSave(){
     if((data.screen!=='izba'||data.foundIds.some(id=>!izbaIDs.includes(id)))&&!ready)throw Error('invalid');
     const gladeReady=artifacts.filter(a=>a.scene==='glade').every(a=>data.foundIds.includes(a.id))&&data.equippedIds.includes('shield')&&Boolean(data.weaponChoice);
     const forestIds=artifacts.filter(a=>a.scene==='forest').map(a=>a.id);
-    if((['forest','complete','puzzle'].includes(data.screen)||forestIds.some(id=>data.foundIds.includes(id)))&&!gladeReady)throw Error('invalid');
+    if((['forest','complete','puzzle','ending'].includes(data.screen)||forestIds.some(id=>data.foundIds.includes(id)))&&!gladeReady)throw Error('invalid');
     if(data.schemaVersion===2&&data.screen==='complete')data.screen='forest';
     if(data.schemaVersion===3&&data.screen==='complete')data.screen='puzzle';
     if(data.screen==='complete'||(data.screen==='puzzle'&&!forestIds.every(id=>data.foundIds.includes(id))))throw Error('invalid');
@@ -100,8 +100,11 @@ function readSave(){
        new Set(Object.values(matches)).size!==matched.length||
        matched.some(([id,piece])=>!data.foundIds.includes(id)||!matchesPiece(id,piece)))throw Error('invalid');
     if(data.puzzleRevealed&&matched.length!==Object.keys(puzzle.pieces).length)throw Error('invalid');
+    if((data.journeyFinished===true||data.screen==='ending')&&
+      (data.journeyFinished!==true||data.puzzleRevealed!==true))throw Error('invalid');
     return {...fresh(),foundIds:data.foundIds,equippedIds:data.equippedIds,screen:data.screen,
-      soundEnabled:data.soundEnabled,weaponChoice:data.weaponChoice,matches,puzzleRevealed:data.puzzleRevealed===true};
+      soundEnabled:data.soundEnabled,weaponChoice:data.weaponChoice,matches,puzzleRevealed:data.puzzleRevealed===true,
+      journeyFinished:data.journeyFinished===true};
   }catch(error){
     if(error.message==='invalid'||error instanceof SyntaxError)saveNotice='Сохранение не удалось прочитать. Можно начать новый поход.';
     else {storageOK=false;saveNotice='Браузер не разрешил сохранение. Можно играть до закрытия страницы.';}
@@ -146,6 +149,7 @@ function prepareSounds(screen,unlock=false){
   if(!state.soundEnabled||!AudioEngine)return;
   if(unlock)awakenSound()?.catch(()=>{});
   const ids=['success',...artifacts.filter(a=>a.scene===screen).map(a=>a.id)];
+  if(screen==='puzzle')ids.push('puzzleReveal');
   for(const id of ids){
     if(soundItem(id)?.sound)(soundContext?soundBuffer(id):soundBytes(id)).catch(()=>{});
   }
@@ -184,12 +188,34 @@ function playSound(id){
 function svgEl(tag,attrs={}){const n=document.createElementNS(NS,tag);for(const [k,v]of Object.entries(attrs))n.setAttribute(k,v);return n;}
 function setScreen(name){
   stopAudio(); hintId=null;
-  for(const id of ['start','game'])$('#'+id).hidden=id!==name;
+  for(const id of ['start','game','finale','ending'])$('#'+id).hidden=id!==name;
   if(name==='game'){
     prepareSounds(state.screen,true);
     if(inPuzzle())renderPuzzle();else render();
     resizeScene(true);
   }
+}
+function playFinale(){
+  if(!state.puzzleRevealed||!puzzleComplete())return;
+  if(state.journeyFinished){showEnding();return;}
+  const video=$('#finale-video');
+  $('#finale-video-note').textContent='';
+  setScreen('finale');focusHeading('#finale-title');
+  video.muted=!state.soundEnabled;
+  video.src=new URL('./assets/finale/final-battle.mp4',import.meta.url).href;
+  video.play().catch(()=>{
+    const note=$('#finale-video-note');
+    if(!$('#finale').hidden&&!note.textContent)note.textContent='Нажми кнопку воспроизведения, чтобы посмотреть видео.';
+  });
+}
+function showEnding(){
+  const video=$('#finale-video');
+  video.pause();
+  state.journeyFinished=true;state.screen='ending';save();
+  $('#treasury-grid').classList.remove('puzzle-list');
+  $('#treasury .dialog-body > p').textContent='Нажми на найденный артефакт, чтобы открыть карточку.';
+  renderTreasury();
+  setScreen('ending');focusHeading('#ending-title');
 }
 function focusHeading(selector){const n=$(selector);n.tabIndex=-1;n.focus({preventScroll:true});}
 function openDialog(dialog){returnFocus=root.activeElement;stopAudio();dialog.showModal();}
@@ -222,10 +248,25 @@ function buildShell(saved){
     </div></section>
     <section id="game" hidden aria-label="Сцена Изба"><div class="scene-head"><div class="scene-title"><div><h2 id="scene-title">Изба</h2><p class="task">Найди 7 предметов и одень богатыря</p></div></div><div class="count" id="count" aria-live="polite"></div></div>
       <div class="toolbar"><button id="treasury-toggle" aria-controls="treasury" aria-expanded="false">Сокровищница · 0</button><button id="hint">Подсказка</button><span class="spacer"></span><button id="zoom-toggle">Крупнее</button><button id="sound" disabled title="Аудиофайлы ещё не добавлены">Звук: нет файлов</button><button id="speech-toggle">Реплика</button><button id="menu">Меню</button></div>
-      <div id="puzzle-message" class="puzzle-message" hidden><strong id="puzzle-selection"></strong><p id="puzzle-feedback" role="status"></p></div>
+      <div id="puzzle-message" class="puzzle-message" hidden><strong id="puzzle-selection"></strong><p id="puzzle-feedback" role="status"></p><button id="puzzle-finale" class="primary" hidden>За богатыря!</button></div>
       <div class="game-layout"><div class="field"><div class="viewport" id="viewport" tabindex="0" aria-label="Игровое поле"><div class="surface"><div class="stage" id="stage"><div id="sprites"></div><svg class="hits" viewBox="0 0 1600 1200" id="hits" role="group" aria-label="Предметы в избе"></svg></div></div></div>
       <div class="speech"><button id="speech-close" aria-label="Скрыть реплику">×</button><div class="status" id="status" aria-live="polite"></div></div></div>
       <aside id="puzzle-side" class="puzzle-side" aria-labelledby="puzzle-treasury-title" hidden><div class="puzzle-side-heading"><h3 id="puzzle-treasury-title">Сокровищница</h3><small class="puzzle-swipe-note">Листай вбок</small></div><div id="puzzle-list" class="puzzle-list"></div></aside></div>
+    </section>
+    <section id="finale" class="finale-screen" hidden aria-labelledby="finale-title">
+      <h2 id="finale-title">Поединок с Тугарином</h2>
+      <p>Ты помог мне собраться и разгадал тайну камина. Теперь мой черёд. Выходи, Тугарин!</p>
+      <video id="finale-video" controls playsinline preload="none" aria-label="Финальная битва"></video>
+      <p id="finale-video-note" class="muted" role="status"></p>
+      <button id="finale-skip">Перейти к итогу</button>
+    </section>
+    <section id="ending" class="finale-screen finale-summary" hidden aria-labelledby="ending-title">
+      <h2 id="ending-title">Поход завершён!</h2>
+      <img class="finale-still" src="${new URL('./assets/finale/victory.webp',import.meta.url).href}" loading="lazy" width="960" height="540" alt="Богатырь верхом после победы">
+      <p>Сошлись богатырь и Тугарин в поединке. Нелегко пришлось нашему герою, но он одолел противника и освободил дорогу.</p>
+      <p>Ты нашёл 27 объектов, собрал богатыря в поход и узнал 26 фигурных деталей камина. Вот это внимательный помощник!</p>
+      <p>А теперь придумай свой богатырский поход! Выбери фигурные детали пазла: кто станет помощником, что пригодится в дороге и кого встретит герой? Расскажи свою историю.</p>
+      <div class="ending-actions"><button id="ending-collection">Моя коллекция</button><button id="ending-puzzle">Рассмотреть камин</button><button id="ending-reset">Начать заново</button></div>
     </section>
     <div class="sr-only" id="live" aria-live="polite"></div>
     <dialog id="treasury" aria-labelledby="treasury-title"><header class="dialog-head"><h2 id="treasury-title">Сокровищница</h2><button class="close" id="treasury-close" aria-label="Закрыть Сокровищницу">×</button></header><div class="dialog-body"><p>Нажми на найденный артефакт, чтобы открыть карточку.</p><div class="treasury-grid" id="treasury-grid"></div></div></dialog>
@@ -233,7 +274,9 @@ function buildShell(saved){
     <dialog id="menu-dialog" aria-labelledby="menu-title"><header class="dialog-head"><h2 id="menu-title">Меню похода</h2><button class="close" id="menu-x" aria-label="Закрыть меню">×</button></header><div class="dialog-body menu-actions"><p>Ищем семь предметов в избе. Найденные вещи ждут в Сокровищнице.</p><button id="resume">Вернуться в избу</button><button id="restart">Начать заново</button><small>Прогресс сохраняется в этом браузере. На другом устройстве он не появится.</small></div></dialog>
     <dialog id="reset-dialog" aria-labelledby="reset-title"><header class="dialog-head"><h2 id="reset-title">Начать новый поход?</h2></header><div class="dialog-body"><p>Находки, снаряжение и найденные детали камина будут сброшены.</p></div><footer class="dialog-foot"><button id="cancel-reset">Остаться в игре</button><button id="confirm-reset" class="primary">Да, начать заново</button></footer></dialog>`;
   $('#start-actions').append(button('Начать поход',()=>{if(saved){askReset();}else{state=fresh();enterScene('izba');}},'primary'));
-  if(saved)$('#start-actions').prepend(button('Продолжить',()=>{if(inPuzzle())enterPuzzle();else enterScene(state.screen);},'primary'));
+  if(saved)$('#start-actions').prepend(button('Продолжить',()=>{
+    if(state.screen==='ending')showEnding();else if(inPuzzle())enterPuzzle();else enterScene(state.screen);
+  },'primary'));
   if(saveNotice){$('#save-message').hidden=false;$('#save-message').textContent=saveNotice;}
   updateStorageNotice();
   const hasAudio=Object.values(config.items).some(item=>Boolean(item.sound));
@@ -245,6 +288,13 @@ function buildShell(saved){
     $('#sound').textContent=state.soundEnabled?'Звук: вкл.':'Звук: выкл.';
   };
   $('#treasury-toggle').onclick=()=>openDialog($('#treasury'));
+  $('#puzzle-finale').onclick=playFinale;
+  $('#finale-skip').onclick=showEnding;
+  $('#finale-video').onended=showEnding;
+  $('#finale-video').onerror=()=>{$('#finale-video-note').textContent='Видео не загрузилось. Можно перейти к итогу.';};
+  $('#ending-collection').onclick=()=>openDialog($('#treasury'));
+  $('#ending-puzzle').onclick=enterPuzzle;
+  $('#ending-reset').onclick=askReset;
   $('#treasury-close').onclick=()=>closeDialog($('#treasury'));
   $('#speech-close').onclick=()=>{$('.speech').hidden=true;};
   $('#speech-toggle').onclick=()=>{$('.speech').hidden=!$('.speech').hidden;};
@@ -272,7 +322,7 @@ function buildShell(saved){
   for(const d of root.querySelectorAll('dialog')){
     d.addEventListener('cancel',e=>{e.preventDefault();closeDialog(d);});
     d.addEventListener('close',()=>{
-      if(d.id==='treasury'&&$('#card').open)return;
+      if(d.id==='treasury'&&($('#card').open||root.activeElement===$('#puzzle-feedback')))return;
       stopAudio();
       if(d.id==='card'){
         const revealed=pendingPlacements.size>0;
@@ -501,11 +551,14 @@ function updatePuzzle(){
   $('#puzzle-selection').hidden=!selectedArtifact;
   const selected=artifacts.find(a=>a.id===selectedArtifact);
   $('#puzzle-selection').textContent=selected?'Ищем: '+selected.title:'';
-  const completion=state.puzzleRevealed
+  const completion=state.journeyFinished?'Все 26 фигурных деталей найдены.':state.puzzleRevealed
     ?'Так вот кто остался! У Тугарина нет своего места в пазле. В нашей истории он преградил дорогу — придётся вызвать его на поединок.'
     :'Все фигурные детали найдены! Но один персонаж остался! Кто это?';
   $('#puzzle-feedback').textContent=count===total?completion:puzzleFeedback;
   $('#puzzle-message').hidden=!selectedArtifact&&!$('#puzzle-feedback').textContent;
+  $('#puzzle-message').classList.toggle('puzzle-reveal',state.puzzleRevealed&&!state.journeyFinished);
+  $('#puzzle-finale').hidden=!state.puzzleRevealed;
+  $('#puzzle-finale').textContent=state.journeyFinished?'Итоги похода':'За богатыря!';
   const occupied=new Set(Object.values(state.matches));
   Object.keys(puzzle.pieces).forEach((id,index)=>{
     const matched=occupied.has(id);
@@ -523,11 +576,12 @@ function updatePuzzle(){
   }
 }
 function choosePuzzleArtifact(id){
-  if(state.matches[id])return;
+  if(state.matches[id]||(id==='tugarin'&&state.puzzleRevealed))return;
+  const revealingTugarin=id==='tugarin'&&puzzleComplete();
   hintedPiece=null;
   if(id==='tugarin'){
     selectedArtifact=null;
-    if(puzzleComplete()){
+    if(revealingTugarin){
       state.puzzleRevealed=true;save();
     }else puzzleFeedback='Для этой находки пока не видно места. Оставим её напоследок.';
   }else{
@@ -536,6 +590,11 @@ function choosePuzzleArtifact(id){
   }
   updatePuzzle();
   resizeScene();
+  if(revealingTugarin){
+    playSound('puzzleReveal');
+    focusHeading('#puzzle-feedback');
+    $('#puzzle-message').scrollIntoView({block:'nearest',behavior:'instant'});
+  }
 }
 function tryPuzzlePiece(id){
   if(puzzleComplete())return;
@@ -623,13 +682,13 @@ function openCard(id){
   }
   if(hintId===id)hintId=null;
   // Remember the triggering ID: rendering can replace the original scene/collection element.
-  if(!inPuzzle())render();
+  if(!inPuzzle()&&state.screen!=='ending')render();
   $('#card-title').textContent=a.title;$('#description').textContent=secondBerry?'Обе малины найдены!':a.description;$('#card-image').src=url(config.items[id].cardImage);$('#card-image').alt=a.title;
   $('#card-image').classList.toggle('mini',config.items[id].cardScale===0.2);
   const reading=a.moreReading;const available=reading&&['customer_supplied','approved'].includes(reading.status);
   $('#read-more').hidden=!available||secondBerry;$('#read-more').textContent='Читать ещё';$('#read-more').setAttribute('aria-expanded','false');$('#reading').hidden=true;
   if(available){$('#reading-title').textContent=reading.title;$('#excerpt').textContent=reading.excerpt;$('#source-label').textContent='Источник: '+reading.sourceLabel;$('#source').href=reading.sourceUrl;}
-  $('#equip').hidden=inPuzzle()||!a.actionLabel||worn(id)||a.scene!==scene||state.weaponChoice===id;$('#equip').textContent=weapons.includes(id)?'Выбрать: '+a.title:a.actionLabel||'';
+  $('#equip').hidden=inPuzzle()||state.screen==='ending'||!a.actionLabel||worn(id)||a.scene!==scene||state.weaponChoice===id;$('#equip').textContent=weapons.includes(id)?'Выбрать: '+a.title:a.actionLabel||'';
   $('#card-note').textContent=inPuzzle()?(state.matches[id]?'✓ Деталь найдена.':''):
     id==='tugarin'&&first?'Тугарин Змей! Запомним, кого встретили. Возможно, мы ещё увидимся':cardNote(id);
   $('#card .dialog-body').scrollTop=0;$('#card').showModal();playSound(id);

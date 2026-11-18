@@ -4,7 +4,10 @@
     "height": 1200
   },
   "mobileDetailWidth": 800,
-  "effects": {"success": {"sound": "assets/audio/mixkit-fast-small-sweep-transition-166.wav", "volume": 0.35}},
+  "effects": {
+    "success": {"sound": "assets/audio/mixkit-fast-small-sweep-transition-166.wav", "volume": 0.35},
+    "puzzleReveal": {"sound": "assets/audio/mixkit-system-beep-buzzer-fail-2964.wav", "volume": 0.45}
+  },
   "background": {
     "image": "assets/izba-background.png",
     "x": 0,

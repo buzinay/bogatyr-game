@@ -35,6 +35,7 @@ dialog{font:17px/1.5 Arial,sans-serif;color:var(--ink);border:1px solid var(--li
 .puzzle-mark{font:700 17px 'Golos Text',sans-serif;fill:#fff;stroke:#244d30;stroke-width:4;paint-order:stroke;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .puzzle-message{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin:0 0 8px;padding:5px 9px;border:1px solid var(--line);border-radius:8px;background:var(--paper);font-size:14px}
 .puzzle-message p{margin:0}.puzzle-message p:empty{display:none}
+.puzzle-message.puzzle-reveal{background:#fff2d8;border-color:#b67b29;border-left-width:4px;padding:9px 12px;scroll-margin-block:12px}
 .puzzle-side{display:none;background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:auto;padding:12px}
 .puzzle-side h3{font-size:20px;margin:0 0 10px}
 .puzzle-swipe-note{display:none}
@@ -87,3 +88,11 @@ dialog{font:17px/1.5 Arial,sans-serif;color:var(--ink);border:1px solid var(--li
   .intro-actions{margin-top:12px;margin-bottom:0}
   .intro-art{max-width:270px}
 }
+.finale-screen{max-width:940px;margin:24px auto;padding:0 clamp(4px,3vw,24px) 18px;text-align:center}
+.finale-screen h2{font-size:clamp(26px,5vw,47px);margin:0 0 12px}
+.finale-screen p{max-width:62ch;margin:10px auto}
+.finale-screen video,.finale-still{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#2b211a;border:1px solid #d8c7a9;border-radius:12px}
+.finale-summary .finale-still{max-width:640px;margin:0 auto 16px}
+.finale-screen #finale-video-note:empty{display:none}
+.finale-screen #finale-skip,.ending-actions{margin-top:16px}
+.ending-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
