@@ -19,6 +19,7 @@ dialog{font:17px/1.5 Arial,sans-serif;color:var(--ink);border:1px solid var(--li
 @media(max-height:500px) and (orientation:landscape){.card-picture.mini{height:18px}}
 .weapon-choices{display:flex;flex-wrap:wrap;gap:6px}.weapon-choices button{font-size:13px;padding:6px 10px}.weapon-choices button[aria-pressed=true]{background:#e4edda;border-color:#557947}.horse-ready{font-size:13px;color:#41603e;margin:7px 0!important}
 @media(max-width:700px){.speech{left:2.5%;top:auto;bottom:8px;width:95%;max-height:38%}}
+@media(min-width:701px){#game[data-scene="forest"] .speech{left:auto;right:14px;top:auto;bottom:14px}}
 @font-face{font-family:Lora;src:url('./assets/fonts/Lora.ttf') format('truetype');font-weight:400 600;font-style:normal;font-display:swap}
 @font-face{font-family:'Golos Text';src:url('./assets/fonts/GolosText.ttf') format('truetype');font-weight:400 900;font-style:normal;font-display:swap}
 :host,dialog{font-family:'Golos Text',system-ui,sans-serif}h1,h2,h3,.reading blockquote{font-family:Lora,Georgia,serif}.found-mark{font-family:'Golos Text',system-ui,sans-serif}#zoom-toggle{display:inline-flex;align-items:center;justify-content:center;gap:8px}#zoom-toggle svg{flex:none}.treasure img{height:120px}

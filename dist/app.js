@@ -1,12 +1,17 @@
 const host = document.getElementById('bogatyr-game');
 const root = host.attachShadow({mode:'open'});
 const style = document.createElement('link');
-style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=glade-7', import.meta.url).href;
+style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=forest-3', import.meta.url).href;
 root.append(style);
 const mount = document.createElement('div');
 mount.className='loading'; mount.textContent='Загружаем игру…'; root.append(mount);
 const KEY='bogatyr-game:izba:v1';
-const BUILD='glade-7';
+const BUILD='forest-3';
+const sceneLabels={
+  izba:{title:'Изба',task:'Найди 7 предметов и одень богатыря',resume:'Вернуться в избу',menu:'Ищем семь предметов в избе. Найденные вещи ждут в Сокровищнице.'},
+  glade:{title:'Поляна',task:'Найди 11 объектов. Не забудь обе малины!',resume:'Вернуться на поляну',menu:'Ищем одиннадцать объектов на поляне. Найди все четыре вида оружия и выбери одно.'},
+  forest:{title:'Лес',task:'Найди 9 объектов',resume:'Вернуться в лес',menu:'Ищем девять находок в лесу. Всё найденное можно рассмотреть в Сокровищнице.'}
+};
 const NS='http://www.w3.org/2000/svg';
 const equipment=['chainmail','helmet','belt','ring','boots'];
 const weapons=['sabre','sword','mace','spear'];
@@ -14,24 +19,42 @@ let scenes,allItems,scene='izba';
 let config, artifacts, state, storageOK=true, saveNotice='', audio=null, activeCard=null;
 let audioTimer=null;
 const soundClips=new Map();
+const pendingPlacements=new Set();
 let hintId=null, zoom='fit', scale=1, returnFocus=null, drag=null, suppressClick=false;
 let gesture=null, customScale=null, touchClickTimer=null;
 const images = new Map();
 const $=s=>root.querySelector(s);
 const el=(tag,cls,text)=>{const n=document.createElement(tag); if(cls)n.className=cls; if(text!==undefined)n.textContent=text; return n;};
 const url=path=>{const u=new URL(path,import.meta.url);u.searchParams.set('v',BUILD);return u.href;};
-const fresh=()=>({schemaVersion:2,foundIds:[],equippedIds:[],screen:'izba',soundEnabled:true,weaponChoice:null,weaponLocked:false});
+const fresh=()=>({schemaVersion:3,foundIds:[],equippedIds:[],screen:'izba',soundEnabled:true,weaponChoice:null});
 const has=id=>state.foundIds.includes(id);
 const worn=id=>state.equippedIds.includes(id);
 const carried=id=>worn(id)||state.weaponChoice===id;
 const sceneArtifacts=()=>artifacts.filter(a=>a.scene===scene);
-const placed=id=>has(id)&&Boolean(config.items[id].placed)&&(!config.items[id].placeAfter||has(config.items[id].placeAfter));
+const placementReady=id=>has(id)&&Boolean(config.items[id].placed)&&(!config.items[id].placeAfter||has(config.items[id].placeAfter));
+const placed=id=>placementReady(id)&&!pendingPlacements.has(id);
 const sceneSprites=id=>placed(id)?config.items[id].placed:config.items[id].hidden;
 const izbaFinished=()=>artifacts.filter(a=>a.scene==='izba').every(a=>has(a.id))&&equipment.every(worn);
 const gladeFinished=()=>artifacts.filter(a=>a.scene==='glade').every(a=>has(a.id))&&worn('shield')&&Boolean(state.weaponChoice);
-const finished=()=>scene==='izba'?izbaFinished():gladeFinished();
+const forestFinished=()=>artifacts.filter(a=>a.scene==='forest').every(a=>has(a.id));
+const finished=()=>scene==='forest'?forestFinished():scene==='glade'?gladeFinished():izbaFinished();
+const activeLayers=cfg=>[
+  ...cfg.layers,
+  ...(cfg.loadout||[]).filter(layer=>carried(layer.equipmentId))
+];
+function sceneLayers(cfg,id){
+  const all=[cfg.background,...activeLayers(cfg)];
+  for(const a of artifacts.filter(item=>item.scene===id)){
+    const isCarried=carried(a.id);
+    all.push(...(isCarried?cfg.items[a.id].worn:sceneSprites(a.id)).map(layer=>({
+      ...layer,artifactId:isCarried?null:a.id,carriedId:isCarried?a.id:null
+    })));
+  }
+  return all;
+}
 function enterScene(id){
   if(id==='glade'&&!izbaFinished())return;
+  if(id==='forest'&&!gladeFinished())return;
   scene=id;config={...scenes[id],items:allItems,effects:scenes.izba.effects};
   state.screen=id;zoom='fit';customScale=null;hintId=null;gesture=null;drag=null;save();
   $('.speech').hidden=false;setScreen('game');focusHeading('#scene-title');
@@ -40,20 +63,21 @@ function readSave(){
   try{
     const raw=localStorage.getItem(KEY); if(!raw)return null;
     const data=JSON.parse(raw), ids=artifacts.map(a=>a.id);
-    if(![1,2].includes(data.schemaVersion)||!Array.isArray(data.foundIds)||!Array.isArray(data.equippedIds)||
+    if(![1,2,3].includes(data.schemaVersion)||!Array.isArray(data.foundIds)||!Array.isArray(data.equippedIds)||
       new Set(data.foundIds).size!==data.foundIds.length||new Set(data.equippedIds).size!==data.equippedIds.length||
       data.foundIds.some(id=>!ids.includes(id))||data.equippedIds.some(id=>![...equipment,'shield'].includes(id)||!data.foundIds.includes(id))||
-      !['izba','glade','complete'].includes(data.screen)||typeof data.soundEnabled!=='boolean')throw Error('invalid');
-    if(data.schemaVersion===1){data.screen='izba';data.weaponChoice=null;data.weaponLocked=false;}
+      !['izba','glade','forest','complete'].includes(data.screen)||typeof data.soundEnabled!=='boolean')throw Error('invalid');
+    if(data.schemaVersion===1){data.screen='izba';data.weaponChoice=null;}
     if(data.weaponChoice!==null&&(!weapons.includes(data.weaponChoice)||!data.foundIds.includes(data.weaponChoice)))throw Error('invalid');
-    if(typeof data.weaponLocked!=='boolean')throw Error('invalid');
     const izbaIDs=artifacts.filter(a=>a.scene==='izba').map(a=>a.id);
     const ready=izbaIDs.every(id=>data.foundIds.includes(id))&&equipment.every(id=>data.equippedIds.includes(id));
     if((data.screen!=='izba'||data.foundIds.some(id=>!izbaIDs.includes(id)))&&!ready)throw Error('invalid');
     const gladeReady=artifacts.filter(a=>a.scene==='glade').every(a=>data.foundIds.includes(a.id))&&data.equippedIds.includes('shield')&&Boolean(data.weaponChoice);
-    if((data.screen==='complete'||data.weaponLocked)&&!gladeReady)throw Error('invalid');
-    if(data.screen==='complete'&&!data.weaponLocked)throw Error('invalid');
-    return {...fresh(),foundIds:data.foundIds,equippedIds:data.equippedIds,screen:data.screen,soundEnabled:data.soundEnabled,weaponChoice:data.weaponChoice,weaponLocked:data.weaponLocked};
+    const forestIds=artifacts.filter(a=>a.scene==='forest').map(a=>a.id);
+    if((['forest','complete'].includes(data.screen)||forestIds.some(id=>data.foundIds.includes(id)))&&!gladeReady)throw Error('invalid');
+    if(data.schemaVersion===2&&data.screen==='complete')data.screen='forest';
+    if(data.screen==='complete'&&!forestIds.every(id=>data.foundIds.includes(id)))throw Error('invalid');
+    return {...fresh(),foundIds:data.foundIds,equippedIds:data.equippedIds,screen:data.screen,soundEnabled:data.soundEnabled,weaponChoice:data.weaponChoice};
   }catch(error){
     if(error.message==='invalid'||error instanceof SyntaxError)saveNotice='Сохранение не удалось прочитать. Можно начать новый поход.';
     else {storageOK=false;saveNotice='Браузер не разрешил сохранение. Можно играть до закрытия страницы.';}
@@ -96,7 +120,7 @@ function restoreFocus(){
   if(target?.isConnected&&target.getAttribute('tabindex')!=='-1')target.focus({preventScroll:true});
   else $('#treasury-toggle')?.focus({preventScroll:true});
 }
-function closeDialog(dialog){dialog.close();restoreFocus();}
+function closeDialog(dialog){dialog.close();}
 function button(text,handler,cls=''){const b=el('button',cls,text);b.type='button';b.addEventListener('click',handler);return b;}
 function buildShell(saved){
   mount.className='app';
@@ -115,7 +139,7 @@ function buildShell(saved){
     <dialog id="menu-dialog" aria-labelledby="menu-title"><header class="dialog-head"><h2 id="menu-title">Меню похода</h2><button class="close" id="menu-x" aria-label="Закрыть меню">×</button></header><div class="dialog-body menu-actions"><p>Ищем семь предметов в избе. Найденные вещи ждут в Сокровищнице.</p><button id="resume">Вернуться в избу</button><button id="restart">Начать заново</button><small>Прогресс сохраняется в этом браузере. На другом устройстве он не появится.</small></div></dialog>
     <dialog id="reset-dialog" aria-labelledby="reset-title"><header class="dialog-head"><h2 id="reset-title">Начать новый поход?</h2></header><div class="dialog-body"><p>Все находки и надетые вещи будут сброшены. Искать предметы можно будет снова.</p></div><footer class="dialog-foot"><button id="cancel-reset">Остаться в игре</button><button id="confirm-reset" class="primary">Да, начать заново</button></footer></dialog>`;
   $('.intro-art .room').src=url(config.background.image);$('.intro-art .hero').src=url(config.layers.find(s=>s.image.includes('hero-base')).image);
-  $('.no-audio').textContent='Изба и Поляна · 18 находок · без спешки';
+  $('.no-audio').textContent='Изба, Поляна и Лес · 27 находок';
   $('#start-actions').append(button('Начать поход',()=>{if(saved){askReset();}else{state=fresh();enterScene('izba');}},'primary'));
   if(saved)$('#start-actions').prepend(button('Продолжить',()=>{if(state.screen==='complete'){setScreen('complete');focusHeading('#complete h2');}else enterScene(state.screen);},'primary'));
   if(saveNotice){$('#save-message').hidden=false;$('#save-message').textContent=saveNotice;}
@@ -139,17 +163,30 @@ function buildShell(saved){
   $('#confirm-reset').onclick=()=>{
     const sound=state.soundEnabled;state=fresh();state.soundEnabled=sound;save();$('#reset-dialog').close();if($('#treasury').open)$('#treasury').close();enterScene('izba');
   };
-  $('#back').onclick=()=>enterScene('glade');
+  $('#back').onclick=()=>enterScene('forest');
   const nav=el('div','menu-actions');
   nav.append(button('Изба',()=>{$('#menu-dialog').close();enterScene('izba');}));
   const gladeNav=button('Поляна',()=>{$('#menu-dialog').close();enterScene('glade');});gladeNav.id='menu-glade';nav.append(gladeNav);
+  const forestNav=button('Лес',()=>{$('#menu-dialog').close();enterScene('forest');});
+  forestNav.id='menu-forest';nav.append(forestNav);
   $('#menu-dialog .dialog-body').prepend(nav);
   $('#read-more').onclick=()=>{const open=$('#reading').hidden;$('#reading').hidden=!open;$('#read-more').textContent=open?'Свернуть':'Читать ещё';$('#read-more').setAttribute('aria-expanded',String(open));};
   for(const id of ['card-x','card-close'])$('#'+id).onclick=()=>closeDialog($('#card'));
   $('#equip').onclick=equipActive;
   for(const d of root.querySelectorAll('dialog')){
     d.addEventListener('cancel',e=>{e.preventDefault();closeDialog(d);});
-    d.addEventListener('close',()=>{stopAudio();restoreFocus();});
+    d.addEventListener('close',()=>{
+      if(d.id==='treasury'&&$('#card').open)return;
+      stopAudio();
+      if(d.id==='card'){
+        const revealed=pendingPlacements.size>0;
+        const moved=[...pendingPlacements].some(id=>!carried(id)&&config.items[id].placementSound!==false);
+        pendingPlacements.clear();activeCard=null;
+        if(revealed)render();
+        if(moved)playSound('success');
+      }
+      restoreFocus();
+    });
   }
   const v=$('#viewport');
   $('.speech').hidden=false;
@@ -193,18 +230,21 @@ function buildShell(saved){
 function askReset(){openDialog($('#reset-dialog'));}
 function render(){
   const current=sceneArtifacts();
-  $('#scene-title').textContent=scene==='izba'?'Изба':'Поляна';
+  const labels=sceneLabels[scene];
+  $('#game').dataset.scene=scene;
+  $('#scene-title').textContent=labels.title;
   $('#game').setAttribute('aria-label','Сцена '+$('#scene-title').textContent);
   $('#viewport').setAttribute('aria-label',$('#scene-title').textContent+'. Увеличивай и перемещай сцену, чтобы осмотреть её целиком');
-  $('.task').textContent=scene==='izba'?'Найди 7 предметов и одень богатыря':'Найди 11 объектов. Не забудь обе малины!';
+  $('.task').textContent=labels.task;
+  $('#hits').setAttribute('aria-label','Находки · '+labels.title);
   $('#count').textContent=`Найдено: ${current.filter(a=>has(a.id)).length}/${current.length}`;
   $('#treasury-toggle').textContent=`Сокровищница · ${state.foundIds.length}`;
-  $('#menu-glade').disabled=!izbaFinished();$('#resume').textContent=scene==='izba'?'Вернуться в избу':'Вернуться на поляну';
-  $('#menu-dialog .dialog-body > p').textContent=scene==='izba'?'Ищем семь предметов в избе. Найденные вещи ждут в Сокровищнице.':'Ищем одиннадцать объектов на поляне. Найди все четыре вида оружия и выбери одно.';
+  $('#menu-glade').disabled=!izbaFinished();
+  $('#menu-forest').disabled=!gladeFinished();
+  $('#resume').textContent=labels.resume;
+  $('#menu-dialog .dialog-body > p').textContent=labels.menu;
   const sprites=$('#sprites');sprites.replaceChildren();
-  const all=[config.background,...config.layers];
-  for(const a of current)all.push(...(carried(a.id)?config.items[a.id].worn:sceneSprites(a.id)).map(s=>({...s,artifactId:carried(a.id)?null:a.id,carriedId:carried(a.id)?a.id:null})));
-  for(const s of all){const img=el('img','sprite');if(s.artifactId)img.dataset.artifact=s.artifactId;if(s.carriedId)img.dataset.carried=s.carriedId;img.alt='';img.draggable=false;img.src=url(s.image);Object.assign(img.style,{left:s.x/16+'%',top:s.y/12+'%',width:s.width/16+'%',height:s.height/12+'%',zIndex:String(s.z||0),transform:s.rotation?`rotate(${s.rotation}deg)`:''});sprites.append(img);}
+  for(const s of sceneLayers(config,scene)){const img=el('img','sprite');if(s.artifactId)img.dataset.artifact=s.artifactId;if(s.carriedId||s.equipmentId)img.dataset.carried=s.carriedId||s.equipmentId;img.alt='';img.draggable=false;img.src=url(s.image);Object.assign(img.style,{left:s.x/16+'%',top:s.y/12+'%',width:s.width/16+'%',height:s.height/12+'%',zIndex:String(s.z||0),transform:s.rotation?`rotate(${s.rotation}deg)`:''});sprites.append(img);}
   renderHits();renderTreasury();renderStatus();
 }
 function renderHits(){
@@ -215,11 +255,11 @@ function renderHits(){
     if(placed(a.id)&&!sceneSprites(a.id).length){
       const [x,y]=config.items[a.id].placedMark;const mark=svgEl('text',{x,y,class:'found-mark','aria-hidden':'true'});mark.textContent='✓';hits.append(mark);continue;
     }
-    const areas=placed(a.id)?sceneSprites(a.id).map(s=>[[s.x,s.y],[s.x+s.width,s.y],[s.x+s.width,s.y+s.height],[s.x,s.y+s.height]]):config.hitAreas[a.id];
+    const areas=itemAreas(a.id);
     const d=areas.map(p=>'M'+p.map(pt=>pt.join(',')).join('L')+'Z').join('');
     const path=svgEl('path',{d,role:'button',tabindex:'0','aria-label':a.title+(has(a.id)?', найдено':''),'data-id':a.id,class:'target'+(hintId===a.id?' hint':'')});
     const light=on=>{for(const im of root.querySelectorAll(`[data-artifact="${a.id}"]`))im.classList.toggle('lit',on||hintId===a.id);};
-    path.addEventListener('pointerenter',e=>{light(true);if(e.pointerType==='mouse'&&!drag)playSound(a.id);});
+    path.addEventListener('pointerenter',e=>{light(true);if(e.pointerType==='mouse'&&!drag&&!$('#card').open&&audio!==soundClips.get('success'))playSound(a.id);});
     path.addEventListener('pointerleave',()=>light(false));
     path.addEventListener('focus',()=>light(true));
     path.addEventListener('blur',()=>light(false));
@@ -227,24 +267,47 @@ function renderHits(){
       if(suppressClick)return;
       if(e.detail>0&&a.id!=='ring'){
         const r=$('#stage').getBoundingClientRect(),x=(e.clientX-r.left)/scale,y=(e.clientY-r.top)/scale;
-        if(!visibleHit(a.id,x,y))return;
+        if(!visibleHit(a.id,x,y)){
+          if(scene==='forest'){
+            const point=new DOMPoint(x,y);
+            const next=[...hits.querySelectorAll('.target')].reverse().find(target=>
+              target.isPointInFill(point)&&visibleHit(target.dataset.id,x,y));
+            if(next)openCard(next.dataset.id);
+          }
+          return;
+        }
       }
       openCard(a.id);
     });
     path.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openCard(a.id);}});
     path.addEventListener('focus',()=>{if(path.matches(':focus-visible'))revealItem(a.id);});
     hits.append(path);
-    if(has(a.id)){
+    if(has(a.id)&&!(scene==='forest'&&pendingPlacements.has(a.id))){
       const [x,y]=placed(a.id)&&config.items[a.id].placedMark?config.items[a.id].placedMark:[areas[0][0][0]+8,areas[0][0][1]-10];const mark=svgEl('text',{x,y,class:'found-mark','aria-hidden':'true'});mark.textContent='✓';hits.append(mark);
     }
   }
 }
 function alphaAt(sprite,x,y){
+  if(sprite.rotation){
+    const cx=sprite.x+sprite.width/2,cy=sprite.y+sprite.height/2;
+    const angle=-sprite.rotation*Math.PI/180,dx=x-cx,dy=y-cy;
+    x=cx+dx*Math.cos(angle)-dy*Math.sin(angle);
+    y=cy+dx*Math.sin(angle)+dy*Math.cos(angle);
+  }
   if(x<sprite.x||y<sprite.y||x>=sprite.x+sprite.width||y>=sprite.y+sprite.height)return 0;
   const im=images.get(sprite.image);return im.alpha[Math.floor((y-sprite.y)/sprite.height*im.height)*im.width+Math.floor((x-sprite.x)/sprite.width*im.width)];
 }
 function visibleHit(id,x,y){
-  return sceneSprites(id).some(s=>alphaAt(s,x,y)>24&&!config.layers.some(front=>(front.z||0)>(s.z||0)&&alphaAt(front,x,y)>128));
+  const fronts=scene==='forest'?sceneLayers(config,scene):activeLayers(config);
+  return sceneSprites(id).some(s=>alphaAt(s,x,y)>24&&!fronts.some(front=>
+    front.artifactId!==id&&(front.z||0)>(s.z||0)&&alphaAt(front,x,y)>128
+  ));
+}
+function itemAreas(id){
+  if(!placed(id))return config.hitAreas[id];
+  return config.items[id].placedHitAreas||sceneSprites(id).map(s=>[
+    [s.x,s.y],[s.x+s.width,s.y],[s.x+s.width,s.y+s.height],[s.x,s.y+s.height]
+  ]);
 }
 function renderTreasury(){
   const grid=$('#treasury-grid');grid.replaceChildren();
@@ -255,6 +318,7 @@ function renderTreasury(){
   }
 }
 function renderStatus(){
+  if(scene==='forest'){renderForestStatus();return;}
   if(scene==='glade'){renderGladeStatus();return;}
   const box=$('#status');box.classList.toggle('success',finished());box.replaceChildren();
   if(finished()){
@@ -276,7 +340,7 @@ function renderGladeStatus(){
   if(gladeFinished()){
     $('.speech').hidden=false;
     box.append(el('p','','Всё готово! И оружие выбрали, и про соху узнали. А теперь — в лес. Там внимательный взгляд пригодится не меньше богатырской силы'));
-    box.append(button('В лес',()=>{state.weaponLocked=true;state.screen='complete';save();setScreen('complete');focusHeading('#complete h2');},'primary'));
+    box.append(button('В лес',()=>enterScene('forest'),'primary'));
   }else if(allFound){
     $('.speech').hidden=false;box.append(el('p','','Всё найдено! '+(!worn('shield')?'Возьми щит. ':'')+(!state.weaponChoice?'Выбери оружие для богатыря.':'')));
     if(!worn('shield'))box.append(button('Взять щит',()=>openCard('shield')));
@@ -286,7 +350,23 @@ function renderGladeStatus(){
     box.append(el('p','','Сабля, меч, булава или копьё? Выбери, что богатырь возьмёт в этот поход'));
     const choices=el('div','weapon-choices');
     for(const id of weapons){const a=artifacts.find(a=>a.id===id),b=button(a.title+(state.weaponChoice===id?' ✓':''),()=>openCard(id));b.disabled=!has(id);b.setAttribute('aria-pressed',String(state.weaponChoice===id));choices.append(b);}
-    box.append(choices);if(state.weaponLocked)box.append(el('small','','Оружие для этого похода уже выбрано.'));
+    box.append(choices);
+  }
+}
+function renderForestStatus(){
+  const box=$('#status');
+  const revealed=forestFinished()&&pendingPlacements.size===0;
+  box.replaceChildren();box.classList.toggle('success',revealed);
+  if(revealed){
+    $('.speech').hidden=false;
+    box.append(el('p','','Все находки собраны! Теперь вернёмся к камину. Посмотрим, какие тайны скрывают его фигурные детали'));
+    box.append(button('Раскрыть тайну камина',()=>{
+      state.screen='complete';save();setScreen('complete');focusHeading('#complete h2');
+    },'primary'));
+  }else if(!sceneArtifacts().some(a=>has(a.id))){
+    box.append(el('p','','Вот так лес! Кто-то рычит, кто-то каркает, а кто-то поёт. Найдём всех и узнаем, кто нам встретился'));
+  }else{
+    box.append(el('p','','Загляни за деревья и присмотрись к краям леса.'));
   }
 }
 function openCard(id){
@@ -295,7 +375,11 @@ function openCard(id){
   if(!a||(!has(id)&&a.scene!==scene))return;
   const secondBerry=!has(id)&&id.startsWith('raspberry')&&has(id==='raspberry_1'?'raspberry_2':'raspberry_1');
   const first=!has(id);returnFocus=root.activeElement;
-  if(first){state.foundIds.push(id);save();}
+  if(first){
+    const before=new Set(sceneArtifacts().filter(a=>placementReady(a.id)).map(a=>a.id));
+    state.foundIds.push(id);save();
+    for(const a of sceneArtifacts())if(placementReady(a.id)&&!before.has(a.id))pendingPlacements.add(a.id);
+  }
   if(hintId===id)hintId=null;
   // Remember the triggering ID: rendering can replace the original scene/collection element.
   render();
@@ -304,12 +388,17 @@ function openCard(id){
   const reading=a.moreReading;const available=reading&&['customer_supplied','approved'].includes(reading.status);
   $('#read-more').hidden=!available||secondBerry;$('#read-more').textContent='Читать ещё';$('#read-more').setAttribute('aria-expanded','false');$('#reading').hidden=true;
   if(available){$('#reading-title').textContent=reading.title;$('#excerpt').textContent=reading.excerpt;$('#source-label').textContent='Источник: '+reading.sourceLabel;$('#source').href=reading.sourceUrl;}
-  $('#equip').hidden=!a.actionLabel||worn(id)||(a.scene!==scene)||(weapons.includes(id)&&(state.weaponLocked||state.weaponChoice===id));$('#equip').textContent=weapons.includes(id)?'Выбрать: '+a.title:a.actionLabel||'';
-  $('#card-note').textContent=cardNote(id);
-  $('#card .dialog-body').scrollTop=0;$('#card').showModal();playSound(first&&placed(id)?'success':id);
+  $('#equip').hidden=!a.actionLabel||worn(id)||a.scene!==scene||state.weaponChoice===id;$('#equip').textContent=weapons.includes(id)?'Выбрать: '+a.title:a.actionLabel||'';
+  $('#card-note').textContent=id==='tugarin'&&first?'Тугарин Змей! Запомним, кого встретили. Возможно, мы ещё увидимся':cardNote(id);
+  $('#card .dialog-body').scrollTop=0;$('#card').showModal();playSound(id);
 }
 function cardNote(id){
-  if(weapons.includes(id))return state.weaponChoice===id?'✓ Это оружие выбрано для похода.':state.weaponLocked?'Выбор оружия уже закреплён до нового прохождения.':'Выбери одно оружие в руки богатырю. Остальные находки останутся в Сокровищнице.';
+  if(artifacts.find(a=>a.id===id)?.scene==='forest')return pendingPlacements.has(id)&&id!=='oak'?'✓ Найдено! Закрой карточку, чтобы увидеть находку в лесу.':'✓ Найдено!';
+  if(pendingPlacements.has(id)&&!weapons.includes(id))return '✓ Найдено! После закрытия карточки предмет займёт своё место.';
+  if(weapons.includes(id)){
+    if(state.weaponChoice===id)return '✓ Это оружие выбрано для похода.';
+    return scene==='glade'?'Выбери одно оружие в руки богатырю. Остальные находки останутся в Сокровищнице.':'Сменить оружие можно на Поляне.';
+  }
   if(id==='shield')return worn(id)?'✓ Щит взят.':'Щит можно взять независимо от выбранного оружия.';
   if(id==='horse')return has('rein')?'✓ Конь стоит за богатырём. Повод найден, конь готов к дороге.':'✓ Конь теперь стоит за богатырём. Осталось найти повод.';
   if(id==='rein')return has('horse')?'✓ Повод надет на коня. Конь готов к дороге.':'✓ Повод найден. Найди коня, чтобы надеть на него повод.';
@@ -324,8 +413,8 @@ function cardNote(id){
 function equipActive(){
   if(!activeCard||!has(activeCard)||artifacts.find(a=>a.id===activeCard)?.scene!==scene)return;
   if(weapons.includes(activeCard)){
-    if(state.weaponLocked||state.weaponChoice===activeCard)return;
-    state.weaponChoice=activeCard;save();render();playSound('success');$('#equip').hidden=true;$('#card-note').textContent=cardNote(activeCard);$('#card-close').focus();return;
+    if(state.weaponChoice===activeCard)return;
+    pendingPlacements.delete(activeCard);state.weaponChoice=activeCard;save();render();playSound('success');$('#equip').hidden=true;$('#card-note').textContent=cardNote(activeCard);$('#card-close').focus();return;
   }
   if(worn(activeCard)||![...equipment,'shield'].includes(activeCard))return;
   state.equippedIds.push(activeCard);save();render();
@@ -341,7 +430,7 @@ function showHint(){
 }
 function revealItem(id){
   if(placed(id)&&!sceneSprites(id).length)return;
-  const areas=placed(id)?sceneSprites(id).map(s=>[[s.x,s.y],[s.x+s.width,s.y+s.height]]):config.hitAreas[id];
+  const areas=itemAreas(id);
   const p=areas.flat(),xs=p.map(t=>t[0]),ys=p.map(t=>t[1]);
   const x=(Math.min(...xs)+Math.max(...xs))/2,y=(Math.min(...ys)+Math.max(...ys))/2;
   const v=$('#viewport'),stage=$('#stage');v.scrollLeft=stage.offsetLeft+x*scale-v.clientWidth/2;v.scrollTop=stage.offsetTop+y*scale-v.clientHeight/2;
@@ -359,26 +448,30 @@ function resizeScene(center=false){
   if(center){v.scrollLeft=0;v.scrollTop=0;}else if(old!==scale){v.scrollLeft*=scale/old;v.scrollTop*=scale/old;}
 }
 function renderComplete(){
-  $('#complete h2').textContent='Вторая сцена пройдена';
-  $('#complete > p').textContent='Ты нашёл все 11 объектов, выбрал оружие и взял щит. Богатырь готов отправиться в лес!';
-  $('#complete .muted').textContent='Лес появится в следующей сборке.';$('#back').textContent='Вернуться на поляну';
+  $('#complete h2').textContent='Лес пройден';
+  $('#complete > p').textContent='В Сокровищнице все 27 находок из Избы, Поляны и Леса.';
+  $('#complete .muted').textContent='Камин-пазл появится в следующей сборке.';$('#back').textContent='Вернуться в лес';
   const canvas=document.createElement('canvas');canvas.width=1600;canvas.height=1200;const ctx=canvas.getContext('2d');
-  const cfg=scenes.glade;
-  const layers=[cfg.background,...cfg.layers,...artifacts.filter(a=>a.scene==='glade').flatMap(a=>carried(a.id)?allItems[a.id].worn:sceneSprites(a.id))].sort((a,b)=>(a.z||0)-(b.z||0));
+  const cfg={...scenes.forest,items:allItems};
+  const layers=sceneLayers(cfg,'forest').sort((a,b)=>(a.z||0)-(b.z||0));
   for(const s of layers){ctx.save();ctx.translate(s.x+s.width/2,s.y+s.height/2);ctx.rotate((s.rotation||0)*Math.PI/180);ctx.drawImage(images.get(s.image).image,-s.width/2,-s.height/2,s.width,s.height);ctx.restore();}
   $('#complete-hero').src=canvas.toDataURL();
 }
 async function load(){
   try{
-    const responses=await Promise.all(['config/izba.json','content/izba.json','config/glade.json','content/glade.json'].map(p=>fetch(url(p),{cache:'no-cache'})));
-    if(responses.some(r=>!r.ok))throw Error('Не удалось загрузить данные избы.');
-    const [izba,izbaContent,glade,gladeContent]=await Promise.all(responses.map(r=>r.json()));
-    scenes={izba,glade};allItems={...izba.items,...glade.items};
-    artifacts=[...izbaContent.map(a=>({...a,scene:'izba'})),...gladeContent];
-    config={...izba,items:allItems};
+    const entries=await Promise.all(Object.keys(sceneLabels).map(async id=>{
+      const responses=await Promise.all(['config','content'].map(folder=>fetch(url(folder+'/'+id+'.json'),{cache:'no-cache'})));
+      if(responses.some(r=>!r.ok))throw Error('Не удалось загрузить данные сцены «'+sceneLabels[id].title+'».');
+      const [cfg,content]=await Promise.all(responses.map(r=>r.json()));
+      return {id,cfg,content};
+    }));
+    scenes=Object.fromEntries(entries.map(({id,cfg})=>[id,cfg]));
+    allItems=Object.assign({},...entries.map(({cfg})=>cfg.items));
+    artifacts=entries.flatMap(({id,content})=>content.map(a=>({...a,scene:id})));
+    config={...scenes.izba,items:allItems,effects:scenes.izba.effects};
     prepareSounds();
-    if(artifacts.length!==18||equipment.some(id=>!config.items[id]))throw Error('Неполный комплект данных.');
-    const paths=new Set([...Object.values(scenes).flatMap(c=>[c.background.image,...c.layers.map(s=>s.image)]),...Object.values(config.items).flatMap(a=>[a.cardImage,...(a.treasuryImage?[a.treasuryImage]:[]),...(a.placed||[]).map(s=>s.image),...a.hidden.map(s=>s.image),...a.worn.map(s=>s.image)])]);
+    if(artifacts.length!==27||artifacts.some(a=>!config.items[a.id]))throw Error('Неполный комплект данных.');
+    const paths=new Set([...Object.values(scenes).flatMap(c=>[c.background.image,...c.layers.map(s=>s.image),...(c.loadout||[]).map(s=>s.image)]),...Object.values(config.items).flatMap(a=>[a.cardImage,...(a.treasuryImage?[a.treasuryImage]:[]),...(a.placed||[]).map(s=>s.image),...a.hidden.map(s=>s.image),...a.worn.map(s=>s.image)])]);
     await Promise.all([...paths].map(path=>new Promise((resolve,reject)=>{
       const image=new Image();image.onload=()=>{const c=document.createElement('canvas');c.width=image.naturalWidth;c.height=image.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);const data=ctx.getImageData(0,0,c.width,c.height).data;const alpha=new Uint8Array(c.width*c.height);for(let i=0;i<alpha.length;i++)alpha[i]=data[i*4+3];images.set(path,{image,width:c.width,height:c.height,alpha});resolve();};
       image.onerror=()=>reject(Error('Не удалось загрузить изображение '+path));image.src=url(path);

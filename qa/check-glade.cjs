@@ -49,8 +49,11 @@ for(const [width,height]of (process.argv.includes('--desktop')?[[1366,768]]:proc
   await p.locator('#speech-close').click();await p.screenshot({path:`qa/glade-equipped-${id}-${width}.png`});
   await p.locator('#speech-toggle').click();
  }
- await p.screenshot({path:`qa/glade-ready-${width}.png`});await p.getByRole('button',{name:'В лес',exact:true}).click();await p.getByRole('heading',{name:'Вторая сцена пройдена',exact:true}).waitFor();
- await p.locator('#back').click();await p.locator('#treasury-toggle').click();await p.locator('.treasure[data-id="sword"]').click();if(await p.locator('#equip').isVisible())throw Error('Locked weapon change');await close();
- if(errors.length)throw Error(errors.join('\n'));console.log('PASS',width,height,'migration, gating, 11 finds, berries, horse, all weapons/reload, shield, lock, assets');await p.close();
+ await p.screenshot({path:`qa/glade-ready-${width}.png`});await p.getByRole('button',{name:'В лес',exact:true}).click();await p.getByRole('heading',{name:'Лес',exact:true}).waitFor();
+ await p.locator('#menu').click();await p.locator('#menu-glade').click();await p.locator('#treasury-toggle').click();await p.locator('.treasure[data-id="sword"]').click();await p.locator('#equip').click();await close();
+ await p.getByRole('button',{name:'В лес',exact:true}).click();
+ await p.locator('[data-carried="sword"]').waitFor();
+ if(await p.locator('[data-carried="sabre"]').count())throw Error('Forest kept the previous weapon');
+ if(errors.length)throw Error(errors.join('\n'));console.log('PASS',width,height,'migration, gating, 11 finds, berries, horse, all weapons/reload, shield, weapon change after Forest, assets');await p.close();
 }
 }finally{if(b)await b.close();if(s)s.kill();}})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -33,6 +33,7 @@ yarn-error.log*
 /qa/*.webp
 /qa/results.json
 /qa/glade-layers/
+/qa/forest-layers/
 
 # Temporary files
 *.tmp

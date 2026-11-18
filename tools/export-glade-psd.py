@@ -3,7 +3,8 @@ from pathlib import Path
 import struct, sys, json, zlib
 from PIL import Image, ImageOps, ImageDraw, ImageFont
 sys.stdout.reconfigure(encoding='utf-8')
-data=next(Path('Поляна').glob('*.psd')).read_bytes(); pos=26
+source_folder=Path(sys.argv[1]) if len(sys.argv)>1 else Path('Поляна')
+data=next(source_folder.glob('*.psd')).read_bytes(); pos=26
 for _ in range(2):
     n=struct.unpack_from('>I',data,pos)[0];pos+=4+n
 pos+=4; n=struct.unpack_from('>I',data,pos)[0];pos+=4
@@ -32,7 +33,7 @@ def unpack(raw):
         if n<128:out.extend(raw[p:p+n+1]);p+=n+1
         elif n>128:out.extend(raw[p:p+1]*(257-n));p+=1
     return bytes(out)
-out=Path('qa/glade-layers');out.mkdir(exist_ok=True);thumbs=[]
+out=Path(sys.argv[2]) if len(sys.argv)>2 else Path('qa/glade-layers');out.mkdir(parents=True,exist_ok=True);thumbs=[]
 for r in records:
     l,t,right,b=r['bounds'];w,h=right-l,b-t;planes={}
     for cid,size in r.pop('channels'):

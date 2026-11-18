@@ -1,0 +1,128 @@
+[
+  {
+    "id": "oak",
+    "title": "Дуб",
+    "description": "Дуб — могучее дерево с крепким стволом и раскидистыми ветвями. Настоящий богатырь леса — только кольчуга не налезает!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Илья Муромец и Соловей-разбойник»",
+      "excerpt": "Сидит тут Соловей Рахмантович\nНа двенадцати дубах, на двенадцати\nподдубинках.",
+      "sourceUrl": "https://feb-web.ru/feb/byliny/texts/bl1/bl1-344-.htm?cmd=p",
+      "sourceLabel": "feb-web.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    }
+  },
+  {
+    "id": "bear",
+    "title": "Медведь",
+    "description": "Медведь — большой и сильный лесной зверь. С виду косолапый, а бегает так, что на соревнования лучше не приглашать!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Волх Всеславьевич»",
+      "excerpt": "Зайцы, лисицы по чащицам,\nА волки, медведи по ельникам…",
+      "sourceUrl": "https://ru.wikisource.org/wiki/Волх_Всеславьевич_(По_саду,_саду_по_зеленому...)",
+      "sourceLabel": "ru.wikisource.org",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    }
+  },
+  {
+    "id": "nightingale",
+    "title": "Соловей-разбойник",
+    "description": "Соловей-разбойник — злодей, чей необыкновенно могучий свист гнёт деревья и сбивает людей с ног. В музыкальную школу такого лучше не приглашать!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Илья Муромец и Соловей-разбойник",
+      "excerpt": "Как засвищет Соловей\nпо-соловьиному,\nЗакричит, собака, по-звериному,\nЗашипит, проклятый, по-змеиному,\nТак все травушки-муравы\nуплетаются,\nВсе лазоремы цветочки отсыпаются,\nА что есть людей вблизи — все\nмертвы лежат.",
+      "sourceUrl": "https://drevne-rus-lit.niv.ru/drevne-rus-lit/sbornik-bylin-putilov/ilya-muromec-i-solovej-razbojnik.htm",
+      "sourceLabel": "drevne-rus-lit.niv.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    }
+  },
+  {
+    "id": "raven",
+    "title": "Чёрный ворон",
+    "description": "Черный ворон — птица, которая в былинах может предупреждать об опасности. Иногда говорит человеческим голосом и помогает герою советом.",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Королевичи из Крякова",
+      "excerpt": "Во ту было пору, во то время\nВозговорит ворон по-человечески:\n«А ой же ты молодый Лука Петрович\nдворянский сын!\nТебе ворона убить - не корысть\nполучить,\nА тебе старца убить - спасенья нет.\nА лучше ты, молодый Лука Петрович,\nТы стань поутру ранешенько,\nТы до самой красной зари до\nутренной,\nПоезжай ты во дáлечо чисто полё,—\nТам приедет татарин касимовской,\nТы побейся, подерись с татарином\nкасимовским».",
+      "sourceUrl": "https://drevne-rus-lit.niv.ru/drevne-rus-lit/sbornik-bylin-putilov/korolevichi-iz-kryakova.htm",
+      "sourceLabel": "drevne-rus-lit.niv.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    }
+  },
+  {
+    "id": "sirin",
+    "title": "Птица Сирин",
+    "description": "Сирин — сказочная птица с женской головой и чарующим голосом. Заслушаешься — и забудешь, за каким подвигом шёл!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Александр Блок, «Сирин и Алконост»",
+      "excerpt": "Густых кудрей откинув волны,\nЗакинув голову назад,\nБросает Сирин счастья полный,\nБлаженств нездешних полный\nвзгляд.",
+      "sourceUrl": "https://ru.wikisource.org/wiki/Сирин_и_Алконост_(Блок)",
+      "sourceLabel": "ru.wikisource.org",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    }
+  },
+  {
+    "id": "wolf",
+    "title": "Волк",
+    "description": "Волк — умный лесной хищник, а в сказках ещё и помощник героя. Если встретил в лесу — сначала убедись, что ты в сказке!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Волх Всеславьевич»",
+      "excerpt": "Дружина спит, так Волх не спит:\nОн обвернется серым волком…",
+      "sourceUrl": "https://ru.wikisource.org/wiki/Волх_Всеславьевич_(По_саду,_саду_по_зеленому...)",
+      "sourceLabel": "ru.wikisource.org",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    }
+  },
+  {
+    "id": "snake",
+    "title": "Змея",
+    "description": "Змея — ползучая обитательница леса. Ни ног, ни крыльев, а по своим делам успевает — вот это ловкость!",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Былина «Михайло Потык»",
+      "excerpt": "Возмолилася змея лютая\nСловом ласковым и покорныим:\n«Ой еси, удалой доброй молодец,\nПотык Михаило сын Иванович!»",
+      "sourceUrl": "https://feb-web.ru/feb/byliny/texts/bl2/bl2-2592.htm?cmd=p",
+      "sourceLabel": "feb-web.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    }
+  },
+  {
+    "id": "gorynych",
+    "title": "Змей Горыныч",
+    "description": "Змей Горыныч — могучий змей из сказок и былин. Его часто представляют крылатым, огнедышащим и с несколькими головами. Он похищает людей и грозит бедой, поэтому богатырям приходится вступать с ним в бой.",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Добрыня Никитич и Змей Горыныч",
+      "excerpt": "...Говорил Добрыня сын Никитинич:\n«Ах ты эй, Змея да ты проклятая!\nЧерт ли тя нес да через Киев-град!\nТы зачем взяла князеву племянницу,\nМолоду Забаву дочь Путятичну?\nТы отдай же мне князеву\nплемянницу\nБез бою, без драки-кроволития!»",
+      "sourceUrl": "http://stonecarving.ru/dobrynya-nikitich-i-zmey-gorynych.html",
+      "sourceLabel": "stonecarving.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    }
+  },
+  {
+    "id": "tugarin",
+    "title": "Тугарин Змей",
+    "description": "Тугарин Змей — грозный и хвастливый противник Алёши Поповича. Несмотря на имя, его не всегда изображают настоящим змеем: он может выглядеть как огромный воин с необычными способностями. Чтобы его победить, нужны не только сила, но и смекалка.",
+    "contentStatus": "customer_supplied",
+    "moreReading": {
+      "title": "Алеша Попович и Тугарин Змей",
+      "excerpt": "И скоро Алёша наряжается,\nСадился на добра коня,\nВзял он сабельку острую\nИ поехал к Тугарину Змеевичу.\nИ увидел Тугарин Змеевич Алёшу\nПоповича,\nЗаревел зычным голосом:\n«Гой еси, Алёша Попович млад!\nХошь ли я тебя огнем спалю,\nХошь ли, Алёша, конем стопчу,\nАли тебя, Алёшу, копьем заколю?»",
+      "sourceUrl": "https://feb-web.ru/feb/byliny/texts/byl/bil-176-.htm?cmd=p",
+      "sourceLabel": "feb-web.ru",
+      "status": "customer_supplied",
+      "sourceVerification": "not_checked"
+    }
+  }
+]
