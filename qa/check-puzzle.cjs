@@ -28,9 +28,7 @@ async function run(browser,width,touch){
   const stage=page.locator('#stage');
   const assertCount=async value=>assert.equal(await count(),`Найдено на камине: ${value} из 26`);
   const choose=async id=>{
-    if(touch)await page.locator('#treasury-toggle').tap();
-    const list=touch?'#treasury-grid':'#puzzle-list';
-    const choice=page.locator(`${list} [data-choose="${id}"]`);
+    const choice=page.locator(`#puzzle-list [data-choose="${id}"]`);
     if(touch)await choice.tap();
     else await choice.click();
   };
@@ -43,12 +41,37 @@ async function run(browser,width,touch){
   const piece=async id=>clickPoint(...pieces['piece_'+id].anchor);
   const region=await stage.boundingBox(),viewport=await page.locator('#viewport').boundingBox();
   assert.ok(region.width<=viewport.width&&region.height<=viewport.height);
+  assert.match(await page.locator('.task').innerText(),/в Сокровищнице/);
   assert.equal(await page.locator('.puzzle-piece').count(),26);
   assert.equal(await page.locator('#puzzle-list [data-choose]').count(),27);
-  await assertCount(0);
+  const tray=await page.locator('#puzzle-side').boundingBox();
+  assert.ok(tray);
   await page.screenshot({path:`qa/puzzle-start-${width}.png`});
+  if(touch){
+    assert.ok(region.y-viewport.y<4&&tray.y>=viewport.y+viewport.height);
+    assert.ok(tray.y+tray.height<=850);
+    assert.equal(await page.locator('#treasury-toggle').isVisible(),false);
+    const strip=page.locator('#puzzle-list');
+    assert.ok(await strip.evaluate(list=>list.scrollWidth>list.clientWidth));
+    await strip.evaluate(list=>list.addEventListener('scrollend',()=>{list.dataset.swipeDone='true';},{once:true}));
+    const r=await strip.boundingBox(),x=r.x+r.width-25,y=r.y+35;
+    const device=await page.context().newCDPSession(page);
+    await device.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
+    for(const distance of [35,75,120])await device.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x-distance,y}]});
+    await device.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+    await page.waitForFunction(()=>{
+      const list=document.querySelector('#bogatyr-game').shadowRoot.querySelector('#puzzle-list');
+      return list.dataset.swipeDone==='true'&&list.scrollLeft>20;
+    });
+    await device.detach();
+    assert.equal(await page.locator('#puzzle-selection').isVisible(),false);
+  }else{
+    assert.ok(tray.x>=viewport.x+viewport.width);
+    assert.equal(await page.locator('#treasury-toggle').isVisible(),true);
+  }
+  await assertCount(0);
   await piece('sirin');
-  assert.match(await page.locator('#puzzle-feedback').innerText(),/Сначала выбери/);
+  assert.equal(await page.locator('#puzzle-feedback').innerText(),'Сначала выбери находку в Сокровищнице.');
   await choose('wolf');
   for(const point of [[550,220],[412,528],[685,528]]){
     await clickPoint(...point);
@@ -81,15 +104,15 @@ async function run(browser,width,touch){
   await page.getByRole('button',{name:'Продолжить',exact:true}).click();
   await assertCount(3);
   await choose('ring');
-  if(touch)await page.locator('#treasury-toggle').tap();
-  await page.locator((touch?'#treasury-grid':'#puzzle-list')+' [data-inspect="ring"]').click();
+  await page.locator('#puzzle-list [data-inspect="ring"]').click();
   await page.locator('#card').waitFor();
   assert.equal(await page.locator('#card-title').innerText(),'Перстень');
   assert.equal(await page.locator('#equip').isVisible(),false);
   await page.locator('#read-more').click();
   await page.locator('#excerpt').waitFor();
   await page.locator('#card-close').click();
-  if(touch){await page.locator('#treasury').waitFor();await page.locator('#treasury-close').tap();}
+  assert.equal(await page.locator('#puzzle-side').isVisible(),true);
+  assert.equal(await page.locator('#treasury').isVisible(),false);
   assert.match(await page.locator('#puzzle-selection').innerText(),/Перстень/);
   await page.locator('#hint').click();
   await page.locator('[data-piece="piece_ring"].hinted').waitFor();

@@ -37,6 +37,7 @@ dialog{font:17px/1.5 Arial,sans-serif;color:var(--ink);border:1px solid var(--li
 .puzzle-message p{margin:0}.puzzle-message p:empty{display:none}
 .puzzle-side{display:none;background:var(--paper);border:1px solid var(--line);border-radius:10px;overflow:auto;padding:12px}
 .puzzle-side h3{font-size:20px;margin:0 0 10px}
+.puzzle-swipe-note{display:none}
 .puzzle-list,#treasury-grid.puzzle-list{display:grid;grid-template-columns:1fr;gap:6px}
 .puzzle-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;min-width:0}
 .puzzle-choose,.puzzle-inspect{font-size:12px;padding:4px 7px}
@@ -48,4 +49,17 @@ dialog{font:17px/1.5 Arial,sans-serif;color:var(--ink);border:1px solid var(--li
 @media(min-width:960px){
   #game[data-scene="puzzle"] .game-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:10px;align-items:start}
   #game[data-scene="puzzle"] .puzzle-side{display:block}
+}
+@media(max-width:959px){
+  #game[data-scene="puzzle"] #treasury-toggle{display:none}
+  #game[data-scene="puzzle"] .surface{align-items:start}
+  #game[data-scene="puzzle"] .puzzle-side{display:block;margin-top:8px;padding:8px;overflow:hidden}
+  .puzzle-side-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 6px}
+  .puzzle-side h3{font-size:17px;margin:0}
+  .puzzle-swipe-note{display:block;font-size:12px}
+  #puzzle-list{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#aa8b61 transparent;overscroll-behavior-x:contain;touch-action:pan-x;padding:3px 3px 6px}
+  #puzzle-list .puzzle-entry{flex:0 0 116px;grid-template-columns:1fr;grid-template-rows:72px 44px}
+  #puzzle-list .puzzle-choose{position:relative;flex-direction:column;justify-content:center;gap:2px;text-align:center;line-height:1.2}
+  #puzzle-list .puzzle-choose img{width:54px;height:33px}
+  #puzzle-list .puzzle-check{position:absolute;right:6px;top:5px}
 }

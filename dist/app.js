@@ -1,7 +1,7 @@
 const host = document.getElementById('bogatyr-game');
 const root = host.attachShadow({mode:'open'});
 const style = document.createElement('link');
-style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=fireplace-1', import.meta.url).href;
+style.rel = 'stylesheet'; style.href = new URL('./styles.css?v=fireplace-2', import.meta.url).href;
 root.append(style);
 const mount = document.createElement('div');
 mount.className='loading'; mount.textContent='Загружаем игру…'; root.append(mount);
@@ -212,7 +212,7 @@ function buildShell(saved){
       <div id="puzzle-message" class="puzzle-message" hidden><strong id="puzzle-selection"></strong><p id="puzzle-feedback" role="status"></p></div>
       <div class="game-layout"><div class="field"><div class="viewport" id="viewport" tabindex="0" aria-label="Игровое поле"><div class="surface"><div class="stage" id="stage"><div id="sprites"></div><svg class="hits" viewBox="0 0 1600 1200" id="hits" role="group" aria-label="Предметы в избе"></svg></div></div></div>
       <div class="speech"><button id="speech-close" aria-label="Скрыть реплику">×</button><div class="status" id="status" aria-live="polite"></div></div></div>
-      <aside id="puzzle-side" class="puzzle-side" hidden><h3>Сокровищница</h3><div id="puzzle-list" class="puzzle-list"></div></aside></div>
+      <aside id="puzzle-side" class="puzzle-side" aria-labelledby="puzzle-treasury-title" hidden><div class="puzzle-side-heading"><h3 id="puzzle-treasury-title">Сокровищница</h3><small class="puzzle-swipe-note">Листай вбок</small></div><div id="puzzle-list" class="puzzle-list"></div></aside></div>
     </section>
     <div class="sr-only" id="live" aria-live="polite"></div>
     <dialog id="treasury" aria-labelledby="treasury-title"><header class="dialog-head"><h2 id="treasury-title">Сокровищница</h2><button class="close" id="treasury-close" aria-label="Закрыть Сокровищницу">×</button></header><div class="dialog-body"><p>Нажми на найденный артефакт, чтобы открыть карточку.</p><div class="treasury-grid" id="treasury-grid"></div></div></dialog>
@@ -424,7 +424,7 @@ function renderPuzzle(){
   $('#game').dataset.scene='puzzle';
   $('#scene-title').textContent='Камин-пазл';
   $('#game').setAttribute('aria-label','Камин-пазл');
-  $('.task').textContent='Выбери находку в коллекции, а затем найди такую фигурную деталь на камине';
+  $('.task').textContent='Выбери находку в Сокровищнице, а затем найди такую фигурную деталь на камине';
   $('#viewport').setAttribute('aria-label','Камин. Поле можно увеличивать и перемещать');
   $('#menu-dialog .dialog-body > p').textContent='Сопоставь находки с фигурными деталями камина.';
   $('#resume').textContent='Вернуться к камину';
@@ -528,7 +528,7 @@ function choosePuzzleArtifact(id){
 }
 function tryPuzzlePiece(id){
   if(puzzleComplete())return;
-  if(!selectedArtifact)puzzleFeedback='Сначала выбери находку в коллекции.';
+  if(!selectedArtifact)puzzleFeedback='Сначала выбери находку в Сокровищнице.';
   else if(Object.values(state.matches).includes(id))puzzleFeedback='Эта деталь уже найдена.';
   else if(!matchesPiece(selectedArtifact,id))puzzleFeedback='Присмотрись к контуру и попробуй ещё раз.';
   else {
@@ -672,14 +672,24 @@ function revealPoint(x,y){
 }
 function resizeScene(center=false){
   const v=$('#viewport');if(!v||$('#game').hidden||v.clientWidth===0)return;
-  const top=v.getBoundingClientRect().top+scrollY;
-  v.style.height=Math.max(220,innerHeight-top-12)+'px';
+  const top=v.getBoundingClientRect().top+scrollY,size=canvasSize();
+  const side=$('#puzzle-side');
+  const compact=inPuzzle()&&matchMedia('(max-width:959px)').matches;
+  const height=innerHeight-top-12;
+  if(compact){
+    side.style.maxHeight='';
+    const room=height-side.offsetHeight-8;
+    const fullPicture=v.clientWidth*size.height/size.width+2;
+    v.style.height=Math.max(140,zoom==='fit'?Math.min(room,fullPicture):room)+'px';
+  }else{
+    v.style.height=Math.max(220,height)+'px';
+    if(inPuzzle())side.style.maxHeight=v.style.height;
+  }
   const old=scale;
-  const size=canvasSize(),fit=fitScale(v);
+  const fit=fitScale(v);
   const detail=inPuzzle()?puzzle.width:config.mobileDetailWidth;
   const width=zoom==='custom'?Math.max(fit,customScale)*size.width:zoom==='fit'?fit*size.width:Math.max(fit*size.width,detail)*(zoom==='large'?1.5:1);
   scale=width/size.width;$('#stage').style.width=width+'px';$('#stage').style.height=scale*size.height+'px';
-  if(inPuzzle())$('#puzzle-side').style.maxHeight=v.style.height;
   const zoomButton=$('#zoom-toggle');
   zoomButton.innerHTML=`<svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6M6.5 10h7"/>${zoom==='fit'?'<path d="M10 6.5v7"/>':''}</svg><span>${zoom==='fit'?'Крупнее':'Показать целиком'}</span>`;
   if(center){v.scrollLeft=0;v.scrollTop=0;}else if(old!==scale){v.scrollLeft*=scale/old;v.scrollTop*=scale/old;}
